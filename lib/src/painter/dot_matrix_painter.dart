@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../models/dot_matrix_style.dart';
 import '../models/dot_matrix_preset.dart';
