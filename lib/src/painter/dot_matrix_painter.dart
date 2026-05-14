@@ -32,13 +32,8 @@ class DotMatrixPainter extends CustomPainter {
     final cellWidth = size.width / style.columns;
     final cellHeight = size.height / style.rows;
 
-    // 2. Determine the maximum possible dot radius that fits in the cell
-    // while respecting the dotGap.
-    final maxRadiusX = (cellWidth - style.dotGap) / 2;
-    final maxRadiusY = (cellHeight - style.dotGap) / 2;
-    
-    // Use the smaller one to ensure dots remain circular/proportional
-    final baseRadius = math.min(maxRadiusX, maxRadiusY).clamp(0.0, 100.0);
+    // 2. Use the dotRadius from style.
+    final baseRadius = style.dotRadius;
 
     final paint = Paint()..style = PaintingStyle.fill;
 

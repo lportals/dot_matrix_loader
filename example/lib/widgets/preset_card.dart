@@ -133,10 +133,8 @@ class _PresetCardState extends State<PresetCard> {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
                           decoration: BoxDecoration(
                             color: onSurface.withValues(alpha: 0.07),
                             borderRadius: BorderRadius.circular(4),

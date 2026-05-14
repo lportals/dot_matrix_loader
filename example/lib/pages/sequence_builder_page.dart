@@ -20,8 +20,8 @@ class SequenceBuilderPage extends StatefulWidget {
 }
 
 class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
-  final int _rows = 5;
-  final int _cols = 5;
+  int _rows = 5;
+  int _cols = 5;
   
   final List<List<List<bool>>> _frames = [];
   int _currentIndex = 0;
@@ -53,6 +53,86 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
     setState(() {
       _frames.insert(_currentIndex + 1, _createEmptyFrame(_rows, _cols));
       _currentIndex++;
+    });
+  }
+
+  void _resetSequence() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: widget.isDark ? const Color(0xFF242424) : Colors.white,
+        title: Text(
+          'Reset Sequence?',
+          style: TextStyle(color: widget.isDark ? Colors.white : Colors.black),
+        ),
+        content: Text(
+          'This will delete all current frames and start over. Are you sure?',
+          style: TextStyle(color: widget.isDark ? Colors.white70 : Colors.black87),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Cancel',
+                style: TextStyle(
+                    color: widget.isDark ? Colors.white54 : Colors.black54)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Reset', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      HapticFeedback.heavyImpact();
+      setState(() {
+        _frames.clear();
+        _frames.add(_createEmptyFrame(_rows, _cols));
+        _currentIndex = 0;
+      });
+    }
+  }
+
+  void _onGridSizeChange(int r, int c) async {
+    // If we have meaningful data, ask for confirmation
+    bool hasData = _frames.length > 1 || _frames[0].any((row) => row.any((dot) => dot));
+    
+    if (hasData) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: widget.isDark ? const Color(0xFF242424) : Colors.white,
+          title: Text(
+            'Change Grid Size?',
+            style: TextStyle(color: widget.isDark ? Colors.white : Colors.black),
+          ),
+          content: Text(
+            'Changing the grid size will clear all current frames. Do you want to proceed?',
+            style: TextStyle(color: widget.isDark ? Colors.white70 : Colors.black87),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text('Cancel', style: TextStyle(color: widget.isDark ? Colors.white54 : Colors.black54)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Change & Reset', style: TextStyle(color: Colors.redAccent)),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true) return;
+    }
+    
+    HapticFeedback.mediumImpact();
+    setState(() {
+      _rows = r;
+      _cols = c;
+      _frames.clear();
+      _frames.add(_createEmptyFrame(_rows, _cols));
+      _currentIndex = 0;
     });
   }
   
@@ -146,8 +226,8 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                     'Sequence Builder.',
                     style: TextStyle(
                       fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.8,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -1.0,
                       color: textColor,
                     ),
                   ),
@@ -173,6 +253,8 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                     columns: _cols,
                     activeColor: _activeColor,
                     inactiveColor: widget.isDark ? const Color(0xFF242424) : const Color(0xFFE5E5E5),
+                    dotRadius: 8,
+                    dotGap: 4,
                   ),
                 ),
               ),
@@ -218,9 +300,83 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
               ),
             ),
             
+            // Grid Size Settings
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'ROWS: $_rows',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: textColor.withValues(alpha: 0.4),
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                        SliderTheme(
+                          data: SliderThemeData(
+                            trackHeight: 2,
+                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                            activeTrackColor: _activeColor,
+                            inactiveTrackColor: surfaceColor,
+                            overlayShape: SliderComponentShape.noOverlay,
+                          ),
+                          child: Slider(
+                            value: _rows.toDouble(),
+                            min: 3,
+                            max: 5,
+                            divisions: 2,
+                            onChanged: (v) => _onGridSizeChange(v.round(), _cols),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'COLS: $_cols',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: textColor.withValues(alpha: 0.4),
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                        SliderTheme(
+                          data: SliderThemeData(
+                            trackHeight: 2,
+                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                            activeTrackColor: _activeColor,
+                            inactiveTrackColor: surfaceColor,
+                            overlayShape: SliderComponentShape.noOverlay,
+                          ),
+                          child: Slider(
+                            value: _cols.toDouble(),
+                            min: 3,
+                            max: 5,
+                            divisions: 2,
+                            onChanged: (v) => _onGridSizeChange(_rows, v.round()),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             // Controls
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -243,9 +399,17 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                   Expanded(
                     child: _ControlButton(
                       icon: Icons.add,
-                      label: 'Add Frame',
+                      label: 'Add',
                       onTap: _addFrame,
                       color: _activeColor,
+                    ),
+                  ),
+                  Expanded(
+                    child: _ControlButton(
+                      icon: Icons.restart_alt_rounded,
+                      label: 'Reset',
+                      onTap: _resetSequence,
+                      color: Colors.orangeAccent,
                     ),
                   ),
                 ],
@@ -528,9 +692,5 @@ class _MiniFramePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _MiniFramePainter oldDelegate) {
-    return oldDelegate.frame != frame || 
-           oldDelegate.activeColor != activeColor || 
-           oldDelegate.inactiveColor != inactiveColor;
-  }
+  bool shouldRepaint(covariant _MiniFramePainter oldDelegate) => true;
 }

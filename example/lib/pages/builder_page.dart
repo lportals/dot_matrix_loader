@@ -85,8 +85,9 @@ class _BuilderPageState extends State<BuilderPage>
   // Style parameters
   late String _presetName;
   late Color _activeColor;
-  double _dotRadius = 5.5;
+  double _dotRadius = 2.5;
   double _dotGap = 6.0;
+  double _loaderSize = 48.0;
   double _speed = 1.0;
   int _rows = 5;
   int _cols = 5;
@@ -151,12 +152,13 @@ class _BuilderPageState extends State<BuilderPage>
     if (_rows != 5) sb.writeln('    rows: $_rows,');
     if (_cols != 5) sb.writeln('    columns: $_cols,');
     sb.writeln('    activeColor: const Color($colorHex),');
-    if (_dotRadius != 5.5) sb.writeln('    dotRadius: ${_dotRadius.toStringAsFixed(1)},');
+    if (_dotRadius != 2.5) sb.writeln('    dotRadius: ${_dotRadius.toStringAsFixed(1)},');
     if (_dotGap != 6.0) sb.writeln('    dotGap: ${_dotGap.toStringAsFixed(1)},');
     if (_speed != 1.0) sb.writeln('    speed: ${_speed.toStringAsFixed(2)},');
     if (_dotShape != DotShape.circle) sb.writeln('    dotShape: DotShape.roundedSquare,');
     if (!_enableColorLerp) sb.writeln('    enableColorLerp: false,');
     sb.writeln('  ),');
+    if (_loaderSize != 100.0) sb.writeln('  size: ${_loaderSize.toStringAsFixed(1)},');
     sb.writeln(')');
 
     return sb.toString();
@@ -206,10 +208,10 @@ class _BuilderPageState extends State<BuilderPage>
                     child: Text(
                       _presetName,
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
                         color: onSurface,
-                        letterSpacing: -0.4,
+                        letterSpacing: -1.0,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -224,27 +226,29 @@ class _BuilderPageState extends State<BuilderPage>
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
               child: Center(
                 child: Container(
-                  width: 100,
-                  height: 100,
+                  width: 140,
+                  height: 140,
                   decoration: BoxDecoration(
                     color: previewBg,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(24),
                   ),
-                  padding: const EdgeInsets.all(20),
-                  child: DotMatrixLoader(
-                    preset: _preset,
-                    style: DotMatrixStyle(
-                      rows: _rows,
-                      columns: _cols,
-                      activeColor: _activeColor,
-                      inactiveColor: inactiveDot,
-                      dotRadius: _dotRadius,
-                      dotGap: _dotGap,
-                      speed: _speed,
-                      dotShape: _dotShape,
-                      enableColorLerp: _enableColorLerp,
+                  child: Center(
+                    child: DotMatrixLoader(
+                      size: _loaderSize,
+                      preset: _preset,
+                      style: DotMatrixStyle(
+                        rows: _rows,
+                        columns: _cols,
+                        activeColor: _activeColor,
+                        inactiveColor: inactiveDot,
+                        dotRadius: _dotRadius,
+                        dotGap: _dotGap,
+                        speed: _speed,
+                        dotShape: _dotShape,
+                        enableColorLerp: _enableColorLerp,
+                      ),
+                      externalAnimation: _controller,
                     ),
-                    externalAnimation: _controller,
                   ),
                 ),
               ),
@@ -268,6 +272,21 @@ class _BuilderPageState extends State<BuilderPage>
                       isDark: isDark,
                       onSelect: (c) => setState(() => _activeColor = c),
                       themePrimary: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Loader Size
+                    _SectionLabel('Loader Size (Square)', onSurface: onSurface),
+                    const SizedBox(height: 8),
+                    _StyledSlider(
+                      value: _loaderSize,
+                      min: 10.0,
+                      max: 99.0,
+                      label: '${_loaderSize.toStringAsFixed(0)} × ${_loaderSize.toStringAsFixed(0)} dp',
+                      activeColor: _activeColor,
+                      trackInactive: trackInactive,
+                      thumbColor: onSurface,
+                      onChanged: (v) => setState(() => _loaderSize = v),
                     ),
                     const SizedBox(height: 20),
 
@@ -325,7 +344,7 @@ class _BuilderPageState extends State<BuilderPage>
                     const SizedBox(height: 8),
                     _StyledSlider(
                       value: _dotRadius,
-                      min: 2.0,
+                      min: 1.0,
                       max: 12.0,
                       label: '${_dotRadius.toStringAsFixed(1)} dp',
                       activeColor: _activeColor,
