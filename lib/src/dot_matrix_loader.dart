@@ -11,6 +11,15 @@ import 'painter/dot_matrix_painter.dart';
 /// are individually driven by a per-preset delay-map function, producing
 /// patterns like pulse rings, spirals, waves, and more.
 ///
+/// ## Inline usage (fixed size, next to text)
+/// ```dart
+/// Row(children: [
+///   Text('Uploading...'),
+///   SizedBox(width: 8),
+///   DotMatrixLoader(size: 18, preset: const Breathe()),
+/// ])
+/// ```
+///
 /// ## Standalone usage (self-managed controller)
 /// ```dart
 /// DotMatrixLoader(
@@ -38,6 +47,7 @@ class DotMatrixLoader extends StatefulWidget {
     this.style = const DotMatrixStyle(),
     this.isActive = true,
     this.externalAnimation,
+    this.size,
   });
 
   /// The animation preset that determines dot behavior.
@@ -58,6 +68,24 @@ class DotMatrixLoader extends StatefulWidget {
   /// or [Ticker]. All preset cards in a gallery should share one controller
   /// via this parameter to minimise scheduler overhead.
   final Animation<double>? externalAnimation;
+
+  /// Optional fixed size (width = height) in logical pixels.
+  ///
+  /// When provided, the widget renders as a square of [size] × [size] dp.
+  /// This is the recommended way to use the loader **inline**, next to text:
+  ///
+  /// ```dart
+  /// Row(children: [
+  ///   Text('Uploading...'),
+  ///   SizedBox(width: 8),
+  ///   DotMatrixLoader(size: 18, preset: const Breathe()),
+  /// ])
+  /// ```
+  ///
+  /// When null, the widget fills all available space from its parent
+  /// while maintaining the column/row aspect ratio — suitable for
+  /// use inside a fixed-size container or a gallery card.
+  final double? size;
 
   @override
   State<DotMatrixLoader> createState() => _DotMatrixLoaderState();
@@ -122,7 +150,7 @@ class _DotMatrixLoaderState extends State<DotMatrixLoader>
   void didUpdateWidget(DotMatrixLoader oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Re-resolve frame if preset changed
+    // Re-resolve frame if preset changed.
     if (oldWidget.preset.runtimeType != widget.preset.runtimeType ||
         (widget.preset is CustomDotAnimation &&
             (widget.preset as CustomDotAnimation).builder !=
@@ -131,7 +159,7 @@ class _DotMatrixLoaderState extends State<DotMatrixLoader>
     }
 
     if (!_usesExternalAnimation && _controller != null) {
-      // Update speed
+      // Update speed.
       final newDuration = Duration(
         milliseconds: (1200 / widget.style.speed.clamp(0.1, 10.0)).round(),
       );
@@ -139,7 +167,7 @@ class _DotMatrixLoaderState extends State<DotMatrixLoader>
         _controller!.duration = newDuration;
       }
 
-      // Start / stop
+      // Start / stop.
       if (widget.isActive && !oldWidget.isActive) {
         _controller!.forward();
       } else if (!widget.isActive && oldWidget.isActive) {
@@ -160,7 +188,7 @@ class _DotMatrixLoaderState extends State<DotMatrixLoader>
   Widget build(BuildContext context) {
     final style = widget.style;
 
-    return RepaintBoundary(
+    final core = RepaintBoundary(
       child: AspectRatio(
         aspectRatio: style.columns / style.rows,
         child: AnimatedBuilder(
@@ -189,5 +217,13 @@ class _DotMatrixLoaderState extends State<DotMatrixLoader>
         ),
       ),
     );
+
+    // When a fixed size is provided, constrain to a square. This is the
+    // correct way to use the loader inline next to text.
+    if (widget.size != null) {
+      return SizedBox.square(dimension: widget.size, child: core);
+    }
+
+    return core;
   }
 }

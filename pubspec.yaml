@@ -1,11 +1,10 @@
 name: dot_matrix_loader
-description: >
-  A zero-dependency Flutter library for premium dot-matrix loading animations.
-  Render animated NxM dot grids with 10 built-in presets and a custom builder API.
+description: A zero-dependency Flutter package for premium dot-matrix loading animations. Render animated NxM dot grids with 36 built-in presets, a custom builder API, and a sequence API.
 version: 0.1.0
 
 homepage: https://github.com/lportals/dot_matrix_loader
 repository: https://github.com/lportals/dot_matrix_loader
+issue_tracker: https://github.com/lportals/dot_matrix_loader/issues
 
 topics:
   - flutter
@@ -13,6 +12,14 @@ topics:
   - loading
   - ui
   - widgets
+
+platforms:
+  android:
+  ios:
+  web:
+  macos:
+  windows:
+  linux:
 
 environment:
   sdk: ^3.7.0
