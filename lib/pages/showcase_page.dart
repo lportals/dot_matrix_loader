@@ -162,6 +162,118 @@ const _allPresets = [
     category: 'Spinner',
     tag: 'icon-20',
   ),
+  _PresetEntry(
+    preset: Radar(),
+    name: 'Radar',
+    description: 'A classic rotating radar sweep beam.',
+    category: 'Spinner',
+    tag: 'icon-21',
+  ),
+  _PresetEntry(
+    preset: Scanner(),
+    name: 'Scanner',
+    description: 'A scanning horizontal laser bounding up and down.',
+    category: 'Agent',
+    tag: 'icon-22',
+  ),
+  _PresetEntry(
+    preset: Collapse(),
+    name: 'Collapse',
+    description: 'Corners collapse rapidly into the center.',
+    category: 'Ambient',
+    tag: 'icon-23',
+  ),
+  _PresetEntry(
+    preset: Static(),
+    name: 'Static',
+    description: 'Randomized high-frequency white noise.',
+    category: 'Ambient',
+    tag: 'icon-24',
+  ),
+  _PresetEntry(
+    preset: Wanderer(),
+    name: 'Wanderer',
+    description: 'A single dot wandering via Lissajous curves.',
+    category: 'Agent',
+    tag: 'icon-25',
+  ),
+  _PresetEntry(
+    preset: Crosshair(),
+    name: 'Crosshair',
+    description: 'Intersecting axes moving smoothly across the grid.',
+    category: 'Spinner',
+    tag: 'icon-26',
+  ),
+  _PresetEntry(
+    preset: RippleIn(),
+    name: 'Ripple In',
+    description: 'Concentric waves collapsing inward to the core.',
+    category: 'Ambient',
+    tag: 'icon-27',
+  ),
+  _PresetEntry(
+    preset: Wipe(),
+    name: 'Wipe',
+    description: 'A solid directional wipe rotating in 360 degrees.',
+    category: 'Progress',
+    tag: 'icon-28',
+  ),
+  _PresetEntry(
+    preset: Twinkle(),
+    name: 'Twinkle',
+    description: 'Smooth, asynchronous twinkling stars.',
+    category: 'Ambient',
+    tag: 'icon-29',
+  ),
+  _PresetEntry(
+    preset: ZigZag(),
+    name: 'ZigZag',
+    description: 'A sequential raster scan snake filling the grid.',
+    category: 'Progress',
+    tag: 'icon-30',
+  ),
+  _PresetEntry(
+    preset: Equalizer(),
+    name: 'Equalizer',
+    description: 'Dynamic audio spectrum bars reacting to phase noise.',
+    category: 'Progress',
+    tag: 'icon-31',
+  ),
+  _PresetEntry(
+    preset: Gravity(),
+    name: 'Gravity',
+    description: 'Dots dropping and bouncing with physical gravity.',
+    category: 'Agent',
+    tag: 'icon-32',
+  ),
+  _PresetEntry(
+    preset: Glitch(),
+    name: 'Glitch',
+    description: 'VHS-style horizontal displacement noise.',
+    category: 'Ambient',
+    tag: 'icon-33',
+  ),
+  _PresetEntry(
+    preset: Diamond(),
+    name: 'Diamond',
+    description: 'Expanding diamond rings using Manhattan distance.',
+    category: 'Ambient',
+    tag: 'icon-34',
+  ),
+  _PresetEntry(
+    preset: Checkerboard(),
+    name: 'Checkerboard',
+    description: 'A classic alternating grid crossfade.',
+    category: 'Ambient',
+    tag: 'icon-35',
+  ),
+  _PresetEntry(
+    preset: Breathe(),
+    name: 'Breathe',
+    description: 'A global ease-in-out pulse mimicking deep breathing.',
+    category: 'Ambient',
+    tag: 'icon-36',
+  ),
 ];
 
 const _categories = ['All', 'Spinner', 'Progress', 'Ambient', 'Agent'];
@@ -356,7 +468,7 @@ class _ShowcasePageState extends State<ShowcasePage>
           ),
           const SizedBox(height: 12),
           Text(
-            '20 built-in patterns. One controller.\n'
+            '36 built-in patterns. One controller.\n'
             'Zero extra tickers.',
             style: TextStyle(
               fontSize: 13,

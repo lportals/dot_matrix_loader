@@ -61,6 +61,22 @@ class _BuilderPageState extends State<BuilderPage>
     'Genome',
     'Stack Fill',
     'Veil',
+    'Radar',
+    'Scanner',
+    'Collapse',
+    'Static',
+    'Wanderer',
+    'Crosshair',
+    'Ripple In',
+    'Wipe',
+    'Twinkle',
+    'ZigZag',
+    'Equalizer',
+    'Gravity',
+    'Glitch',
+    'Diamond',
+    'Checkerboard',
+    'Breathe',
   ];
 
   @override
@@ -300,12 +316,126 @@ class _BuilderPageState extends State<BuilderPage>
           final rowNorm = rows > 1 ? 1.0 - row / (rows - 1) : 1.0;
           raw = (rowNorm <= fillLevel ? 1.0 : 0.0) * _amplitude;
           delay = 0;
-        default: // Veil
+        case 19: // Veil
           final angle = teff * 2 * math.pi * _frequency;
           final projection = (col - cx) * math.cos(angle) + (row - cy) * math.sin(angle);
           final maxProjection = math.sqrt(cx * cx + cy * cy);
           final normalizedProj = maxProjection > 0 ? (projection / maxProjection + 1.0) / 2.0 : 0.5;
           raw = (math.sin(normalizedProj * math.pi)).clamp(0.0, 1.0) * _amplitude;
+          delay = 0;
+        case 20: // Radar
+          final angle = math.atan2(row - cy, col - cx);
+          final normAngle = (angle + math.pi) / (2 * math.pi);
+          final delta = (teff * _frequency - normAngle * _delayStrength + 1.0) % 1.0;
+          raw = math.max(0.0, 1.0 - delta * 4.0) * _amplitude;
+          delay = 0;
+        case 21: // Scanner
+          final scanRow = rows > 1 ? (math.sin(teff * 2 * math.pi * _frequency) + 1.0) / 2.0 * (rows - 1) : 0.0;
+          final d = (row - scanRow).abs();
+          raw = math.max(0.0, 1.0 - d * 1.5 * _delayStrength).clamp(0.0, 1.0) * _amplitude;
+          delay = 0;
+        case 22: // Collapse
+          final d = math.sqrt(math.pow(col - cx, 2) + math.pow(row - cy, 2));
+          final maxD = math.sqrt(cx * cx + cy * cy);
+          final normDist = maxD > 0 ? d / maxD : 0.0;
+          final activeRadius = (1.0 - teff * _frequency);
+          final diff = (normDist - activeRadius).abs();
+          raw = math.max(0.0, 1.0 - diff * 5.0 * _delayStrength).clamp(0.0, 1.0) * _amplitude;
+          delay = 0;
+        case 23: // Static
+          final frame = (teff * 20 * _frequency).floor();
+          final hash = (row * 31 + col * 17 + frame * 13) % 100;
+          raw = (hash > 80 ? 1.0 : 0.0) * _amplitude;
+          delay = 0;
+        case 24: // Wanderer
+          final targetX = (math.sin(teff * 2 * math.pi * 3 * _frequency) + 1.0) / 2.0 * (cols - 1);
+          final targetY = (math.sin(teff * 2 * math.pi * 4 * _frequency) + 1.0) / 2.0 * (rows - 1);
+          final d = math.sqrt(math.pow(col - targetX, 2) + math.pow(row - targetY, 2));
+          raw = math.max(0.0, 1.0 - d * 1.2 * _delayStrength).clamp(0.0, 1.0) * _amplitude;
+          delay = 0;
+        case 25: // Crosshair
+          final targetX = (math.sin(teff * 2 * math.pi * _frequency) + 1.0) / 2.0 * (cols - 1);
+          final targetY = (math.cos(teff * 2 * math.pi * _frequency) + 1.0) / 2.0 * (rows - 1);
+          final vX = math.max(0.0, 1.0 - (col - targetX).abs() * 1.5 * _delayStrength);
+          final vY = math.max(0.0, 1.0 - (row - targetY).abs() * 1.5 * _delayStrength);
+          raw = math.max(vX, vY).clamp(0.0, 1.0) * _amplitude;
+          delay = 0;
+        case 26: // Ripple In
+          final d = math.sqrt(math.pow(col - cx, 2) + math.pow(row - cy, 2));
+          final val = ((math.sin(d * 2.5 * _delayStrength + teff * 2 * math.pi * _frequency) + 1) / 2).clamp(0.0, 1.0);
+          raw = val * _amplitude;
+          delay = 0;
+        case 27: // Wipe
+          final angle = teff * math.pi * 2 * _frequency;
+          final dotProj = col * math.cos(angle) + row * math.sin(angle);
+          final midProj = cx * math.cos(angle) + cy * math.sin(angle);
+          raw = (dotProj > midProj ? 1.0 : 0.0) * _amplitude;
+          delay = 0;
+        case 28: // Twinkle
+          final phase = (row * 13 + col * 7) % 23 / 23.0;
+          final speed = 1.0 + ((row * 5 + col * 11) % 7) / 7.0;
+          final rawV = (math.sin(teff * 2 * math.pi * speed * _frequency + phase * 2 * math.pi) + 1.0) / 2.0;
+          raw = math.pow(rawV, 4).toDouble().clamp(0.0, 1.0) * _amplitude;
+          delay = 0;
+        case 29: // ZigZag
+          final totalDots = rows * cols;
+          if (totalDots == 0) {
+            raw = 0.0; delay = 0; break;
+          }
+          final litIndex = (teff * _frequency * totalDots).floor();
+          final c = (row % 2 == 0) ? col : (cols - 1 - col);
+          final myIndex = row * cols + c;
+          final diff = litIndex - myIndex;
+          raw = (diff >= 0 && diff < 4) ? (1.0 - diff * 0.25).clamp(0.0, 1.0) * _amplitude : 0.0;
+          delay = 0;
+        case 30: // Equalizer
+          final freq1 = 1.0 + (col % 3) * 0.5;
+          final freq2 = 1.5 + (col % 2) * 0.7;
+          final phase = col * 0.5 * _delayStrength;
+          final h = (math.sin(teff * math.pi * 2 * freq1 * _frequency + phase) + 
+                     math.sin(teff * math.pi * 2 * freq2 * _frequency - phase)) / 2.0;
+          final normalizedHeight = (h + 1.0) / 2.0;
+          final activeHeight = normalizedHeight * rows;
+          final rowFromBottom = rows - 1 - row;
+          if (rowFromBottom <= activeHeight) {
+            raw = 1.0;
+          } else if (rowFromBottom - activeHeight < 1.0) {
+            raw = 1.0 - (rowFromBottom - activeHeight);
+          } else {
+            raw = 0.0;
+          }
+          raw *= _amplitude;
+          delay = 0;
+        case 31: // Gravity
+          final phase = col / cols;
+          final localT = (teff * _frequency + phase * _delayStrength) % 1.0;
+          final bounceY = math.pow(math.sin(localT * math.pi), 1.5); 
+          final targetRow = (1.0 - bounceY) * (rows - 1);
+          final d = (row - targetRow).abs();
+          raw = math.max(0.0, 1.0 - d * 1.5).clamp(0.0, 1.0) * _amplitude;
+          delay = 0;
+        case 32: // Glitch
+          final frame = (teff * 15 * _frequency).floor();
+          final shift = ((row * 17 + frame * 31) % 5) - 2;
+          final virtualCol = col + shift;
+          final noise = ((virtualCol * 13 + row * 7 + frame * 23) % 100);
+          raw = (noise > 85 ? 0.0 : 1.0) * _amplitude;
+          delay = 0;
+        case 33: // Diamond
+          final manhattan = (col - cx).abs() + (row - cy).abs();
+          final maxD = cx + cy;
+          final normDist = maxD > 0 ? manhattan / maxD : 0.0;
+          final delta = (teff * _frequency - normDist * _delayStrength + 1.0) % 1.0;
+          raw = math.pow(math.max(0.0, 1.0 - delta * 4.0), 2).toDouble() * _amplitude;
+          delay = 0;
+        case 34: // Checkerboard
+          final isEven = (row + col) % 2 == 0;
+          final phase = isEven ? 0.0 : 0.5 * _delayStrength;
+          raw = ((math.sin((teff * _frequency + phase) * 2 * math.pi) + 1.0) / 2.0) * _amplitude;
+          delay = 0;
+        default: // 35: Breathe
+          final sine = (math.sin(teff * 2 * math.pi * _frequency - math.pi / 2) + 1.0) / 2.0;
+          raw = math.pow(sine, 2.5).toDouble() * _amplitude;
           delay = 0;
       }
 

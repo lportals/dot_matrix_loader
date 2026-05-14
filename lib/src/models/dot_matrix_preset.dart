@@ -140,6 +140,23 @@ class Veil extends DotMatrixPreset {
   const Veil();
 }
 
+class Radar extends DotMatrixPreset { const Radar(); }
+class Scanner extends DotMatrixPreset { const Scanner(); }
+class Collapse extends DotMatrixPreset { const Collapse(); }
+class Static extends DotMatrixPreset { const Static(); }
+class Wanderer extends DotMatrixPreset { const Wanderer(); }
+class Crosshair extends DotMatrixPreset { const Crosshair(); }
+class RippleIn extends DotMatrixPreset { const RippleIn(); }
+class Wipe extends DotMatrixPreset { const Wipe(); }
+class Twinkle extends DotMatrixPreset { const Twinkle(); }
+class ZigZag extends DotMatrixPreset { const ZigZag(); }
+class Equalizer extends DotMatrixPreset { const Equalizer(); }
+class Gravity extends DotMatrixPreset { const Gravity(); }
+class Glitch extends DotMatrixPreset { const Glitch(); }
+class Diamond extends DotMatrixPreset { const Diamond(); }
+class Checkerboard extends DotMatrixPreset { const Checkerboard(); }
+class Breathe extends DotMatrixPreset { const Breathe(); }
+
 /// Custom escape hatch — supply your own [DotAnimationFrame] delay map.
 ///
 /// Example:
@@ -188,6 +205,22 @@ DotAnimationFrame resolvePreset(DotMatrixPreset preset) {
     Genome()             => _genome,
     StackFill()          => _stackFill,
     Veil()               => _veil,
+    Radar()              => _radar,
+    Scanner()            => _scanner,
+    Collapse()           => _collapse,
+    Static()             => _static,
+    Wanderer()           => _wanderer,
+    Crosshair()          => _crosshair,
+    RippleIn()           => _rippleIn,
+    Wipe()               => _wipe,
+    Twinkle()            => _twinkle,
+    ZigZag()             => _zigZag,
+    Equalizer()          => _equalizer,
+    Gravity()            => _gravity,
+    Glitch()             => _glitch,
+    Diamond()            => _diamond,
+    Checkerboard()       => _checkerboard,
+    Breathe()            => _breathe,
     CustomDotAnimation(:final builder) => builder,
   };
 }
@@ -461,3 +494,155 @@ DotState _veil(int row, int col, int rows, int cols, double t) {
   return DotState(opacity: v, scale: 0.3 + 0.7 * v);
 }
 
+DotState _radar(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0;
+  final cy = (rows - 1) / 2.0;
+  final angle = math.atan2(row - cy, col - cx);
+  final normAngle = (angle + math.pi) / (2 * math.pi);
+  final delta = (t - normAngle + 1.0) % 1.0;
+  final v = math.max(0.0, 1.0 - delta * 4.0);
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _scanner(int row, int col, int rows, int cols, double t) {
+  final scanRow = rows > 1 ? (math.sin(t * 2 * math.pi) + 1.0) / 2.0 * (rows - 1) : 0.0;
+  final dist = (row - scanRow).abs();
+  final v = math.max(0.0, 1.0 - dist * 1.5).clamp(0.0, 1.0);
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _collapse(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0;
+  final cy = (rows - 1) / 2.0;
+  final dist = math.sqrt(math.pow(col - cx, 2) + math.pow(row - cy, 2));
+  final maxDist = math.sqrt(cx * cx + cy * cy);
+  final normDist = maxDist > 0 ? dist / maxDist : 0.0;
+  final activeRadius = (1.0 - t);
+  final diff = (normDist - activeRadius).abs();
+  final v = math.max(0.0, 1.0 - diff * 5.0).clamp(0.0, 1.0);
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _static(int row, int col, int rows, int cols, double t) {
+  final frame = (t * 20).floor();
+  final hash = (row * 31 + col * 17 + frame * 13) % 100;
+  final v = hash > 80 ? 1.0 : 0.0;
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _wanderer(int row, int col, int rows, int cols, double t) {
+  final targetX = (math.sin(t * 2 * math.pi * 3) + 1.0) / 2.0 * (cols - 1);
+  final targetY = (math.sin(t * 2 * math.pi * 4) + 1.0) / 2.0 * (rows - 1);
+  final dist = math.sqrt(math.pow(col - targetX, 2) + math.pow(row - targetY, 2));
+  final v = math.max(0.0, 1.0 - dist * 1.2).clamp(0.0, 1.0);
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _crosshair(int row, int col, int rows, int cols, double t) {
+  final cx = (math.sin(t * 2 * math.pi) + 1.0) / 2.0 * (cols - 1);
+  final cy = (math.cos(t * 2 * math.pi) + 1.0) / 2.0 * (rows - 1);
+  final vX = math.max(0.0, 1.0 - (col - cx).abs() * 1.5);
+  final vY = math.max(0.0, 1.0 - (row - cy).abs() * 1.5);
+  final v = math.max(vX, vY).clamp(0.0, 1.0);
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _rippleIn(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0;
+  final cy = (rows - 1) / 2.0;
+  final dist = math.sqrt(math.pow(col - cx, 2) + math.pow(row - cy, 2));
+  final v = ((math.sin(dist * 2.5 + t * 2 * math.pi) + 1) / 2).clamp(0.0, 1.0);
+  return DotState(opacity: v, scale: 0.35 + 0.65 * v);
+}
+
+DotState _wipe(int row, int col, int rows, int cols, double t) {
+  final angle = t * math.pi * 2;
+  final dotProj = col * math.cos(angle) + row * math.sin(angle);
+  final midProj = (cols - 1)/2.0 * math.cos(angle) + (rows - 1)/2.0 * math.sin(angle);
+  final v = (dotProj > midProj) ? 1.0 : 0.0;
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _twinkle(int row, int col, int rows, int cols, double t) {
+  final phase = (row * 13 + col * 7) % 23 / 23.0;
+  final speed = 1.0 + ((row * 5 + col * 11) % 7) / 7.0;
+  final rawV = (math.sin(t * 2 * math.pi * speed + phase * 2 * math.pi) + 1.0) / 2.0;
+  final v = math.pow(rawV, 4).toDouble().clamp(0.0, 1.0);
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _equalizer(int row, int col, int rows, int cols, double t) {
+  final freq1 = 1.0 + (col % 3) * 0.5;
+  final freq2 = 1.5 + (col % 2) * 0.7;
+  final phase = col * 0.5;
+  
+  final h = (math.sin(t * math.pi * 2 * freq1 + phase) + 
+             math.sin(t * math.pi * 2 * freq2 - phase)) / 2.0;
+             
+  final normalizedHeight = (h + 1.0) / 2.0;
+  final activeHeight = normalizedHeight * rows;
+  final rowFromBottom = rows - 1 - row;
+  
+  double v = 0.0;
+  if (rowFromBottom <= activeHeight) {
+    v = 1.0;
+  } else if (rowFromBottom - activeHeight < 1.0) {
+    v = 1.0 - (rowFromBottom - activeHeight);
+  }
+  
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _gravity(int row, int col, int rows, int cols, double t) {
+  final phase = col / cols;
+  final localT = (t + phase) % 1.0;
+  final bounceY = math.pow(math.sin(localT * math.pi), 1.5); 
+  final targetRow = (1.0 - bounceY) * (rows - 1);
+  final dist = (row - targetRow).abs();
+  final v = math.max(0.0, 1.0 - dist * 1.5).clamp(0.0, 1.0);
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _glitch(int row, int col, int rows, int cols, double t) {
+  final frame = (t * 15).floor();
+  final shift = ((row * 17 + frame * 31) % 5) - 2;
+  final virtualCol = col + shift;
+  final noise = ((virtualCol * 13 + row * 7 + frame * 23) % 100);
+  final v = noise > 85 ? 0.0 : 1.0;
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _diamond(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0;
+  final cy = (rows - 1) / 2.0;
+  final manhattan = (col - cx).abs() + (row - cy).abs();
+  final maxDist = cx + cy;
+  final normDist = maxDist > 0 ? manhattan / maxDist : 0.0;
+  final delta = (t - normDist + 1.0) % 1.0;
+  final v = math.pow(math.max(0.0, 1.0 - delta * 4.0), 2).toDouble();
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _checkerboard(int row, int col, int rows, int cols, double t) {
+  final isEven = (row + col) % 2 == 0;
+  final phase = isEven ? 0.0 : 0.5;
+  final val = (math.sin((t + phase) * 2 * math.pi) + 1.0) / 2.0;
+  return DotState(opacity: val, scale: 0.3 + 0.7 * val);
+}
+
+DotState _breathe(int row, int col, int rows, int cols, double t) {
+  final sine = (math.sin(t * 2 * math.pi - math.pi / 2) + 1.0) / 2.0;
+  final val = math.pow(sine, 2.5).toDouble();
+  return DotState(opacity: val, scale: 0.3 + 0.7 * val);
+}
+
+DotState _zigZag(int row, int col, int rows, int cols, double t) {
+  final totalDots = rows * cols;
+  if (totalDots == 0) return const DotState(opacity: 0.0, scale: 0.0);
+  final litIndex = (t * totalDots).floor();
+  final c = (row % 2 == 0) ? col : (cols - 1 - col);
+  final myIndex = row * cols + c;
+  final diff = litIndex - myIndex;
+  final v = (diff >= 0 && diff < 4) ? (1.0 - diff * 0.25).clamp(0.0, 1.0) : 0.0;
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
