@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pages/showcase_page.dart';
 import 'pages/builder_page.dart';
+import 'pages/sequence_builder_page.dart';
 
 /// Root application widget with a theme toggle (dark / light).
 class DotMatrixApp extends StatefulWidget {
@@ -27,11 +28,11 @@ class _DotMatrixAppState extends State<DotMatrixApp> {
         scaffoldBackgroundColor: const Color(0xFF080808),
         colorScheme: const ColorScheme.dark(
           surface: Color(0xFF080808),
-          primary: Color(0xFFE53935),
-          onPrimary: Colors.white,
+          primary: Colors.white,
+          onPrimary: Colors.black,
           onSurface: Colors.white,
         ),
-        fontFamily: 'monospace',
+        fontFamily: '',
       ),
       // ── Light theme ────────────────────────────────────────────────────────
       theme: ThemeData(
@@ -39,11 +40,11 @@ class _DotMatrixAppState extends State<DotMatrixApp> {
         scaffoldBackgroundColor: const Color(0xFFF2F2F2),
         colorScheme: const ColorScheme.light(
           surface: Color(0xFFF2F2F2),
-          primary: Color(0xFFE53935),
+          primary: Colors.black,
           onPrimary: Colors.white,
           onSurface: Colors.black,
         ),
-        fontFamily: 'monospace',
+        fontFamily: '',
       ),
       home: _RootShell(isDark: _isDark, onToggleTheme: _toggleTheme),
     );
@@ -65,6 +66,7 @@ class _RootShell extends StatefulWidget {
 
 class _RootShellState extends State<_RootShell> {
   int _currentIndex = 0;
+  String? _selectedBuilderPresetName;
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +82,20 @@ class _RootShellState extends State<_RootShell> {
           ShowcasePage(
             isDark: widget.isDark,
             onToggleTheme: widget.onToggleTheme,
+            onSelectPreset: (name) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BuilderPage(
+                    isDark: widget.isDark,
+                    onToggleTheme: widget.onToggleTheme,
+                    initialPresetName: name,
+                  ),
+                ),
+              );
+            },
           ),
-          BuilderPage(
+          SequenceBuilderPage(
             isDark: widget.isDark,
             onToggleTheme: widget.onToggleTheme,
           ),
@@ -132,8 +146,8 @@ class _BottomBar extends StatelessWidget {
               onTap: () => onTap(0),
             ),
             _Tab(
-              label: 'Builder',
-              icon: Icons.tune_rounded,
+              label: 'Sequence',
+              icon: Icons.view_carousel_rounded,
               active: currentIndex == 1,
               onTap: () => onTap(1),
             ),

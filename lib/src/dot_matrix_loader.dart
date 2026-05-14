@@ -161,18 +161,32 @@ class _DotMatrixLoaderState extends State<DotMatrixLoader>
     final style = widget.style;
 
     return RepaintBoundary(
-      child: AnimatedBuilder(
-        animation: _animation,
-        builder: (context, _) {
-          return CustomPaint(
-            size: Size(style.gridWidth, style.gridHeight),
-            painter: DotMatrixPainter(
-              frame: _frame,
-              style: style,
-              t: _animation.value,
-            ),
-          );
-        },
+      child: AspectRatio(
+        aspectRatio: style.columns / style.rows,
+        child: AnimatedBuilder(
+          animation: _animation,
+          builder: (context, _) {
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final width = constraints.hasBoundedWidth
+                    ? constraints.maxWidth
+                    : style.gridWidth;
+                final height = constraints.hasBoundedHeight
+                    ? constraints.maxHeight
+                    : style.gridHeight;
+
+                return CustomPaint(
+                  size: Size(width, height),
+                  painter: DotMatrixPainter(
+                    frame: _frame,
+                    style: style,
+                    t: _animation.value,
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

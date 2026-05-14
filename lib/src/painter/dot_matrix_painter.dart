@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../models/dot_matrix_style.dart';
 import '../models/dot_matrix_preset.dart';
@@ -25,11 +26,20 @@ class DotMatrixPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final dotDiameter = style.dotRadius * 2;
-    final cellSize = dotDiameter + style.dotGap;
+    if (size.width <= 0 || size.height <= 0) return;
 
-    // Allocate a single Paint and mutate its color per dot — avoids
-    // creating one object per dot per frame (e.g. 1 500 allocs/s on 5×5@60fps).
+    // 1. Calculate the size of a single grid cell
+    final cellWidth = size.width / style.columns;
+    final cellHeight = size.height / style.rows;
+
+    // 2. Determine the maximum possible dot radius that fits in the cell
+    // while respecting the dotGap.
+    final maxRadiusX = (cellWidth - style.dotGap) / 2;
+    final maxRadiusY = (cellHeight - style.dotGap) / 2;
+    
+    // Use the smaller one to ensure dots remain circular/proportional
+    final baseRadius = math.min(maxRadiusX, maxRadiusY).clamp(0.0, 100.0);
+
     final paint = Paint()..style = PaintingStyle.fill;
 
     for (int row = 0; row < style.rows; row++) {
@@ -39,28 +49,26 @@ class DotMatrixPainter extends CustomPainter {
         final opacity = dotState.opacity.clamp(0.0, 1.0);
         final scale = dotState.scale.clamp(0.0, 1.0);
 
-        // Resolve paint color and mutate the shared Paint in-place.
         paint.color = style.enableColorLerp
             ? Color.lerp(style.inactiveColor, style.activeColor, opacity)!
             : style.activeColor.withValues(alpha: opacity);
 
-        // Center of this dot in canvas coordinates.
-        final cx = col * cellSize + style.dotRadius;
-        final cy = row * cellSize + style.dotRadius;
+        // Center position for this specific dot
+        final cx = col * cellWidth + cellWidth / 2;
+        final cy = row * cellHeight + cellHeight / 2;
 
-        final scaledRadius = style.dotRadius * scale;
+        final currentRadius = baseRadius * scale;
 
         if (style.dotShape == DotShape.circle) {
-          canvas.drawCircle(Offset(cx, cy), scaledRadius, paint);
+          canvas.drawCircle(Offset(cx, cy), currentRadius, paint);
         } else {
-          // Rounded square — corner radius is 35% of scaled radius.
           final rect = Rect.fromCenter(
             center: Offset(cx, cy),
-            width: scaledRadius * 2,
-            height: scaledRadius * 2,
+            width: currentRadius * 2,
+            height: currentRadius * 2,
           );
           canvas.drawRRect(
-            RRect.fromRectAndRadius(rect, Radius.circular(scaledRadius * 0.35)),
+            RRect.fromRectAndRadius(rect, Radius.circular(currentRadius * 0.35)),
             paint,
           );
         }

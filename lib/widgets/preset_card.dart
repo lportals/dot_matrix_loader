@@ -31,11 +31,13 @@ class PresetCard extends StatefulWidget {
     required this.activeColor,
     this.rows = 5,
     this.cols = 5,
+    this.onTap,
   });
 
   final PresetCardData entry;
   final Animation<double> sharedAnimation;
   final Color activeColor;
+  final VoidCallback? onTap;
 
   /// Number of rows in the dot grid preview.
   final int rows;
@@ -63,7 +65,10 @@ class _PresetCardState extends State<PresetCard> {
 
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        if (widget.onTap != null) widget.onTap!();
+      },
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedScale(
         scale: _pressed ? 0.96 : 1.0,
@@ -88,17 +93,20 @@ class _PresetCardState extends State<PresetCard> {
                     ),
                   ),
                   child: Center(
-                    child: DotMatrixLoader(
-                      preset: widget.entry.preset,
-                      style: DotMatrixStyle(
-                        activeColor: widget.activeColor,
-                        inactiveColor: inactiveDot,
-                        rows: widget.rows,
-                        columns: widget.cols,
-                        dotRadius: 5.5,
-                        dotGap: 6,
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: DotMatrixLoader(
+                        preset: widget.entry.preset,
+                        style: DotMatrixStyle(
+                          activeColor: widget.activeColor,
+                          inactiveColor: inactiveDot,
+                          rows: widget.rows,
+                          columns: widget.cols,
+                          dotRadius: 5.5,
+                          dotGap: 6,
+                        ),
+                        externalAnimation: widget.sharedAnimation,
                       ),
-                      externalAnimation: widget.sharedAnimation,
                     ),
                   ),
                 ),

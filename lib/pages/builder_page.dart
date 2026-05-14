@@ -15,10 +15,12 @@ class BuilderPage extends StatefulWidget {
     super.key,
     required this.isDark,
     required this.onToggleTheme,
+    this.initialPresetName,
   });
 
   final bool isDark;
   final VoidCallback onToggleTheme;
+  final String? initialPresetName;
 
   @override
   State<BuilderPage> createState() => _BuilderPageState();
@@ -37,8 +39,9 @@ class _BuilderPageState extends State<BuilderPage>
   double _delayStrength = 0.6;
   bool _reversed = false;
   int _basePresetIndex = 0;
-  Color _activeColor = const Color(0xFFE53935);
+  late Color _activeColor;
   bool _copied = false;
+  double _previewSize = 60.0;
 
   static const _basePresets = [
     'Pulse Rings',
@@ -82,6 +85,12 @@ class _BuilderPageState extends State<BuilderPage>
   @override
   void initState() {
     super.initState();
+    if (widget.initialPresetName != null) {
+      final index = _basePresets.indexOf(widget.initialPresetName!);
+      if (index != -1) {
+        _basePresetIndex = index;
+      }
+    }
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -89,9 +98,28 @@ class _BuilderPageState extends State<BuilderPage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _activeColor = Theme.of(context).colorScheme.primary;
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant BuilderPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialPresetName != oldWidget.initialPresetName && widget.initialPresetName != null) {
+      final index = _basePresets.indexOf(widget.initialPresetName!);
+      if (index != -1 && index != _basePresetIndex) {
+        setState(() {
+          _basePresetIndex = index;
+        });
+      }
+    }
   }
 
   // ── Frame builder ─────────────────────────────────────────────────────────
@@ -492,14 +520,33 @@ class _BuilderPageState extends State<BuilderPage>
     final previewInactive =
         isDark ? const Color(0xFF1C1C1C) : const Color(0xFFDDDDDD);
 
-    return SafeArea(
-      child: Column(
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: SafeArea(
+        child: Column(
         children: [
           // ── Title bar ───────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
             child: Row(
               children: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: onSurface.withValues(alpha: 0.05),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      size: 16,
+                      color: onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
                 Text(
                   'Builder',
                   style: TextStyle(
@@ -518,33 +565,6 @@ class _BuilderPageState extends State<BuilderPage>
                     letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(width: 12),
-                GestureDetector(
-                  onTap: widget.onToggleTheme,
-                  behavior: HitTestBehavior.opaque,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: onSurface.withValues(alpha: 0.07),
-                      shape: BoxShape.circle,
-                    ),
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      transitionBuilder: (child, anim) =>
-                          ScaleTransition(scale: anim, child: child),
-                      child: Icon(
-                        widget.isDark
-                            ? Icons.light_mode_rounded
-                            : Icons.dark_mode_rounded,
-                        key: ValueKey(widget.isDark),
-                        size: 16,
-                        color: onSurface.withValues(alpha: 0.55),
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -552,17 +572,21 @@ class _BuilderPageState extends State<BuilderPage>
 
           // ── Live preview ────────────────────────────────────────────────
           Center(
-            child: DotMatrixAnimationBuilder(
-              frame: _currentFrame,
-              style: DotMatrixStyle(
-                rows: _rows,
-                columns: _cols,
-                dotRadius: 6.5,
-                dotGap: 7,
-                activeColor: _activeColor,
-                inactiveColor: previewInactive,
+            child: SizedBox(
+              width: _previewSize,
+              height: _previewSize,
+              child: DotMatrixAnimationBuilder(
+                frame: _currentFrame,
+                style: DotMatrixStyle(
+                  rows: _rows,
+                  columns: _cols,
+                  dotRadius: 6.5,
+                  dotGap: 3,
+                  activeColor: _activeColor,
+                  inactiveColor: previewInactive,
+                ),
+                externalAnimation: _controller,
               ),
-              externalAnimation: _controller,
             ),
           ),
           const SizedBox(height: 28),
@@ -570,8 +594,9 @@ class _BuilderPageState extends State<BuilderPage>
           // ── Controls ────────────────────────────────────────────────────
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Base preset selector
@@ -605,7 +630,9 @@ class _BuilderPageState extends State<BuilderPage>
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: active
-                                    ? Colors.white
+                                    ? (_activeColor.computeLuminance() > 0.5
+                                        ? Colors.black
+                                        : Colors.white)
                                     : Colors.white.withValues(alpha: 0.4),
                               ),
                             ),
@@ -615,6 +642,20 @@ class _BuilderPageState extends State<BuilderPage>
                     ),
                   ),
                   const SizedBox(height: 20),
+
+                  // Preview Size
+                  _SectionLabel('Preview Size'),
+                  const SizedBox(height: 8),
+                  _LabeledSlider(
+                    label: 'Width/Height',
+                    value: _previewSize,
+                    min: 20,
+                    max: 100,
+                    displayValue: '${_previewSize.round()}px',
+                    activeColor: _activeColor,
+                    onChanged: (v) => setState(() => _previewSize = v),
+                  ),
+                  const SizedBox(height: 16),
 
                   // Grid size
                   _SectionLabel('Grid Size'),
@@ -749,12 +790,11 @@ class _BuilderPageState extends State<BuilderPage>
                   Row(
                     children: [
                       for (final c in [
-                        const Color(0xFFE53935),
+                        Theme.of(context).colorScheme.primary,
                         const Color(0xFF42A5F5),
                         const Color(0xFF66BB6A),
                         const Color(0xFFFFA726),
                         const Color(0xFFAB47BC),
-                        isDark ? Colors.white : Colors.black,
                       ])
                         Padding(
                           padding: const EdgeInsets.only(right: 10),
@@ -802,9 +842,11 @@ class _BuilderPageState extends State<BuilderPage>
               ),
             ),
           ),
-        ],
-      ),
-    );
+        ),
+      ],
+    ),
+  ),
+);
   }
 }
 

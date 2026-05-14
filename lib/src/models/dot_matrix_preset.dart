@@ -176,6 +176,14 @@ class CustomDotAnimation extends DotMatrixPreset {
   final DotAnimationFrame builder;
 }
 
+/// A custom sequence animation built frame-by-frame.
+class SequenceAnimation extends DotMatrixPreset {
+  const SequenceAnimation({required this.frames});
+
+  /// The timeline of frames. Each frame is a 2D grid of booleans (true = active).
+  final List<List<List<bool>>> frames;
+}
+
 // ---------------------------------------------------------------------------
 // Preset → DotAnimationFrame resolver
 // ---------------------------------------------------------------------------
@@ -222,6 +230,37 @@ DotAnimationFrame resolvePreset(DotMatrixPreset preset) {
     Checkerboard()       => _checkerboard,
     Breathe()            => _breathe,
     CustomDotAnimation(:final builder) => builder,
+    SequenceAnimation(:final frames) => (row, col, rows, cols, t) {
+      if (frames.isEmpty) return const DotState(opacity: 0.0, scale: 0.0);
+      if (frames.length == 1) {
+        final f = frames.first;
+        if (row < f.length && col < f[row].length) {
+          final active = f[row][col];
+          return DotState(opacity: active ? 1.0 : 0.0, scale: active ? 1.0 : 0.3);
+        }
+        return const DotState(opacity: 0.0, scale: 0.0);
+      }
+      
+      final totalFrames = frames.length;
+      final progress = (t * totalFrames) % totalFrames;
+      final currentIndex = progress.floor();
+      final nextIndex = (currentIndex + 1) % totalFrames;
+      final frameFraction = progress - currentIndex;
+      
+      final currentFrame = frames[currentIndex];
+      final nextFrame = frames[nextIndex];
+      
+      final bool currentActive = (row < currentFrame.length && col < currentFrame[row].length) && currentFrame[row][col];
+      final bool nextActive = (row < nextFrame.length && col < nextFrame[row].length) && nextFrame[row][col];
+      
+      final double currentOp = currentActive ? 1.0 : 0.0;
+      final double nextOp = nextActive ? 1.0 : 0.0;
+      
+      // Smooth cross-fade interpolation
+      final double op = currentOp + (nextOp - currentOp) * frameFraction;
+      
+      return DotState(opacity: op, scale: 0.3 + 0.7 * op);
+    },
   };
 }
 

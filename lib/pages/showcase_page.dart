@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../src/dot_matrix_loader.dart';
 import '../src/models/dot_matrix_style.dart';
 import '../src/models/dot_matrix_preset.dart';
@@ -287,10 +288,12 @@ class ShowcasePage extends StatefulWidget {
     super.key,
     required this.isDark,
     required this.onToggleTheme,
+    required this.onSelectPreset,
   });
 
   final bool isDark;
   final VoidCallback onToggleTheme;
+  final ValueChanged<String> onSelectPreset;
 
   @override
   State<ShowcasePage> createState() => _ShowcasePageState();
@@ -306,7 +309,7 @@ class _ShowcasePageState extends State<ShowcasePage>
   double _speed = 1.0;
   int _rows = 5;
   int _cols = 5;
-  Color _activeColor = const Color(0xFFE53935);
+  late Color _activeColor;
 
   @override
   void initState() {
@@ -334,6 +337,12 @@ class _ShowcasePageState extends State<ShowcasePage>
       ..repeat();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _activeColor = Theme.of(context).colorScheme.primary;
+  }
+
   List<_PresetEntry> get _visiblePresets {
     if (_categoryIndex == 0) return _allPresets;
     final cat = _categories[_categoryIndex];
@@ -342,8 +351,13 @@ class _ShowcasePageState extends State<ShowcasePage>
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final crossAxisCount = (width / 240).floor().clamp(2, 8);
+
+        return CustomScrollView(
+          slivers: [
         // ── Header ────────────────────────────────────────────────────────
         SliverToBoxAdapter(child: _buildHeader()),
 
@@ -390,13 +404,17 @@ class _ShowcasePageState extends State<ShowcasePage>
                     activeColor: _activeColor,
                     rows: _rows,
                     cols: _cols,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      widget.onSelectPreset(entry.name);
+                    },
                   ),
                 );
               },
               childCount: _visiblePresets.length,
             ),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
               childAspectRatio: 0.82,
@@ -405,6 +423,8 @@ class _ShowcasePageState extends State<ShowcasePage>
         ),
       ],
     );
+  },
+);
   }
 
   Widget _buildHeader() {
@@ -500,9 +520,9 @@ class _ShowcasePageState extends State<ShowcasePage>
           Row(
             children: [
               _ColorDot(
-                color: const Color(0xFFE53935),
-                selected: _activeColor == const Color(0xFFE53935),
-                onTap: () => setState(() => _activeColor = const Color(0xFFE53935)),
+                color: Theme.of(context).colorScheme.primary,
+                selected: _activeColor == Theme.of(context).colorScheme.primary,
+                onTap: () => setState(() => _activeColor = Theme.of(context).colorScheme.primary),
                 isDark: isDark,
               ),
               const SizedBox(width: 8),
@@ -521,17 +541,9 @@ class _ShowcasePageState extends State<ShowcasePage>
               ),
               const SizedBox(width: 8),
               _ColorDot(
-                color: const Color(0xFFFFA726),
-                selected: _activeColor == const Color(0xFFFFA726),
-                onTap: () => setState(() => _activeColor = const Color(0xFFFFA726)),
-                isDark: isDark,
-              ),
-              const SizedBox(width: 8),
-              _ColorDot(
-                color: isDark ? Colors.white : Colors.black,
-                selected: _activeColor == (isDark ? Colors.white : Colors.black),
-                onTap: () => setState(
-                    () => _activeColor = isDark ? Colors.white : Colors.black),
+                color: const Color(0xFFAB47BC),
+                selected: _activeColor == const Color(0xFFAB47BC),
+                onTap: () => setState(() => _activeColor = const Color(0xFFAB47BC)),
                 isDark: isDark,
               ),
               const Spacer(),
@@ -706,7 +718,9 @@ class _ShowcasePageState extends State<ShowcasePage>
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: active
-                      ? Colors.white
+                      ? (_activeColor.computeLuminance() > 0.5
+                          ? Colors.black
+                          : Colors.white)
                       : onSurface.withValues(alpha: 0.5),
                   letterSpacing: 0.2,
                 ),
