@@ -4,6 +4,8 @@ A zero-dependency Flutter package for premium dot-matrix loading animations.
 Render animated NxM dot grids with **36 built-in presets**, a custom builder API,
 and a frame-by-frame sequence API — all driven by a single `AnimationController`.
 
+![Dot Matrix Loader Demo](https://raw.githubusercontent.com/lportals/dot_matrix_loader/develop/doc/gifs/matrix_loader_animation.gif)
+
 ---
 
 ## Features
@@ -97,6 +99,8 @@ DotMatrixLoader(
 
 Define discrete frames as boolean grids (use the **Sequence Builder** in the example app
 to design them visually and export the code automatically):
+
+![Sequence Builder Demo](https://raw.githubusercontent.com/lportals/dot_matrix_loader/develop/doc/gifs/matrix_loader_animation_sequence.gif)
 
 ```dart
 DotMatrixLoader(

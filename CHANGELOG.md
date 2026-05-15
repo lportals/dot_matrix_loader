@@ -16,3 +16,4 @@
 - `DotShape` enum: `circle` and `roundedSquare`
 - `loop`, `loopPause`, `enableHaptics`, `enableColorLerp` style options
 - `isActive` flag to pause/resume standalone loaders
+- **Interactive Studio Example**: Full-featured design playground with frame editor and code exporter.
