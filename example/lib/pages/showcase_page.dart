@@ -4,6 +4,7 @@ import 'package:dot_matrix_loader/dot_matrix_loader.dart';
 
 
 import '../widgets/preset_card.dart';
+import '../widgets/studio_widgets.dart';
 
 /// Preset metadata for the gallery grid.
 class _PresetEntry {
@@ -698,7 +699,7 @@ class _ShowcasePageState extends State<ShowcasePage>
         separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final active = _categoryIndex == i;
-          return GestureDetector(
+          return StudioInteractiveWrapper(
             onTap: () => setState(() => _categoryIndex = i),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
@@ -708,8 +709,13 @@ class _ShowcasePageState extends State<ShowcasePage>
               decoration: BoxDecoration(
                 color: active
                     ? _activeColor
-                    : onSurface.withValues(alpha: 0.08),
+                    : onSurface.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: active
+                      ? _activeColor.withValues(alpha: 0.2)
+                      : onSurface.withValues(alpha: 0.06),
+                ),
               ),
               child: Text(
                 _categories[i],

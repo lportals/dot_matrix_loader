@@ -206,6 +206,25 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
     if (mounted) setState(() => _copied = false);
   }
 
+  void _showLivePreviewModal() {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      barrierColor: Colors.black.withValues(alpha: 0.8),
+      builder: (context) => _LivePreviewBottomSheet(
+        frames: _frames,
+        rows: _rows,
+        cols: _cols,
+        activeColor: _activeColor,
+        isDark: widget.isDark,
+        onExport: _copyCode,
+        copied: _copied,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bgColor = widget.isDark ? const Color(0xFF080808) : const Color(0xFFF8F9FA);
@@ -693,38 +712,41 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
   }
 
   Widget _buildLivePreviewSlot(Color borderColor) {
-    return Container(
-      width: 100, // Wider for better visibility
-      height: double.infinity,
-      margin: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: _activeColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _activeColor.withValues(alpha: 0.25), width: 1.5),
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Transform.scale(
-            scale: 0.55, // Significantly larger preview
-            child: DotMatrixLoader(
-              preset: SequenceAnimation(frames: _frames),
-              style: DotMatrixStyle(
-                rows: _rows,
-                columns: _cols,
-                activeColor: _activeColor,
-                inactiveColor: widget.isDark ? const Color(0xFF242424) : const Color(0xFFE5E5E5),
-                dotRadius: 6,
-                dotGap: 4,
+    return StudioInteractiveWrapper(
+      onTap: _showLivePreviewModal,
+      child: Container(
+        width: 100, // Wider for better visibility
+        height: double.infinity,
+        margin: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: _activeColor.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _activeColor.withValues(alpha: 0.25), width: 1.5),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Transform.scale(
+              scale: 0.55, // Significantly larger preview
+              child: DotMatrixLoader(
+                preset: SequenceAnimation(frames: _frames),
+                style: DotMatrixStyle(
+                  rows: _rows,
+                  columns: _cols,
+                  activeColor: _activeColor,
+                  inactiveColor: widget.isDark ? const Color(0xFF242424) : const Color(0xFFE5E5E5),
+                  dotRadius: 6,
+                  dotGap: 4,
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: 6,
-            left: 8,
-            child: Icon(Icons.play_circle_filled_rounded, size: 14, color: _activeColor),
-          ),
-        ],
+            Positioned(
+              top: 6,
+              left: 8,
+              child: Icon(Icons.play_circle_filled_rounded, size: 14, color: _activeColor),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1042,6 +1064,144 @@ class _MiniFramePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _MiniFramePainter oldDelegate) => true;
+}
+
+class _LivePreviewBottomSheet extends StatelessWidget {
+  const _LivePreviewBottomSheet({
+    required this.frames,
+    required this.rows,
+    required this.cols,
+    required this.activeColor,
+    required this.isDark,
+    required this.onExport,
+    required this.copied,
+  });
+
+  final List<List<List<bool>>> frames;
+  final int rows;
+  final int cols;
+  final Color activeColor;
+  final bool isDark;
+  final VoidCallback onExport;
+  final bool copied;
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor = isDark ? Colors.white : Colors.black;
+    final cardBg = isDark ? const Color(0xFF111111) : Colors.white;
+    final previewBg = isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF5F5F5);
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 40,
+            offset: const Offset(0, -10),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: textColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 24),
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Full Preview.',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: textColor,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  Text(
+                    '${frames.length} FRAMES • ${rows}x${cols} GRID',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: textColor.withValues(alpha: 0.4),
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ],
+              ),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(Icons.close_rounded, color: textColor.withValues(alpha: 0.5)),
+                style: IconButton.styleFrom(
+                  backgroundColor: textColor.withValues(alpha: 0.05),
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // Large Animated Preview
+          Container(
+            width: double.infinity,
+            height: 320,
+            decoration: BoxDecoration(
+              color: previewBg,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: textColor.withValues(alpha: 0.05)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(48),
+              child: Center(
+                child: DotMatrixLoader(
+                  preset: SequenceAnimation(frames: frames),
+                  style: DotMatrixStyle(
+                    rows: rows,
+                    columns: cols,
+                    activeColor: activeColor,
+                    inactiveColor: isDark ? const Color(0xFF1C1C1C) : const Color(0xFFDDDDDD),
+                    dotRadius: 3.5,
+                    dotGap: 8,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // Action Row
+          Row(
+            children: [
+              Expanded(
+                child: SidebarExportButton(
+                  copied: copied,
+                  activeColor: activeColor,
+                  onTap: onExport,
+                  label: 'COPY SEQUENCE CODE',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 

@@ -1166,8 +1166,13 @@ class _ShapeChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? activeColor : onSurface.withValues(alpha: 0.07),
+          color: selected ? activeColor : onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected
+                ? activeColor.withValues(alpha: 0.2)
+                : onSurface.withValues(alpha: 0.06),
+          ),
         ),
         child: Text(
           label,
