@@ -194,6 +194,7 @@ class _BuilderPageState extends State<BuilderPage>
 
   @override
   Widget build(BuildContext context) {
+    final studio = StudioProvider.of(context);
     final isDark = widget.isDark;
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final cardBg = isDark ? const Color(0xFF111111) : const Color(0xFFF5F5F5);

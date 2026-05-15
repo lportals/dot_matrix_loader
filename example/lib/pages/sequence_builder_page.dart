@@ -222,12 +222,16 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
         isDark: widget.isDark,
         onExport: _copyCode,
         copied: _copied,
+        dotShape: StudioProvider.of(context).shape,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Listen to global studio changes
+    final studio = StudioProvider.of(context);
+    
     final bgColor = widget.isDark ? const Color(0xFF080808) : const Color(0xFFF8F9FA);
     final surfaceColor = widget.isDark ? const Color(0xFF121212) : Colors.white;
     final textColor = widget.isDark ? Colors.white : Colors.black;
@@ -240,16 +244,16 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
           final isDesktop = constraints.maxWidth >= 600;
           
           if (isDesktop) {
-            return _buildDesktopLayout(surfaceColor, borderColor, textColor, constraints);
+            return _buildDesktopLayout(surfaceColor, borderColor, textColor, constraints, studio);
           }
           
-          return _buildMobileLayout(surfaceColor, borderColor, textColor);
+          return _buildMobileLayout(surfaceColor, borderColor, textColor, studio);
         },
       ),
     );
   }
 
-  Widget _buildMobileLayout(Color surfaceColor, Color borderColor, Color textColor) {
+  Widget _buildMobileLayout(Color surfaceColor, Color borderColor, Color textColor, StudioProvider studio) {
     final isDark = widget.isDark;
     final cardBg = isDark ? const Color(0xFF111111) : const Color(0xFFF5F5F5);
 
@@ -273,7 +277,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                           alignment: const Alignment(0, -0.6),
                           child: AspectRatio(
                             aspectRatio: _cols / _rows,
-                            child: _buildGridCanvas(borderColor),
+                            child: _buildGridCanvas(borderColor, studio),
                           ),
                         ),
                       ),
@@ -299,7 +303,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
     );
   }
 
-  Widget _buildDesktopLayout(Color surfaceColor, Color borderColor, Color textColor, BoxConstraints constraints) {
+  Widget _buildDesktopLayout(Color surfaceColor, Color borderColor, Color textColor, BoxConstraints constraints, StudioProvider studio) {
     final isDark = widget.isDark;
     final cardBg = isDark ? const Color(0xFF111111) : const Color(0xFFF5F5F5);
 
@@ -317,7 +321,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                     padding: const EdgeInsets.all(64),
                     child: AspectRatio(
                       aspectRatio: _cols / _rows,
-                      child: _buildGridCanvas(borderColor),
+                      child: _buildGridCanvas(borderColor, studio),
                     ),
                   ),
                 ),
@@ -693,6 +697,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                             cols: _cols,
                             activeColor: _activeColor,
                             inactiveColor: widget.isDark ? const Color(0xFF333333) : const Color(0xFFCCCCCC),
+                            dotShape: StudioProvider.of(context).shape,
                           ),
                         ),
                         Positioned(
@@ -743,6 +748,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                   columns: _cols,
                   activeColor: _activeColor,
                   inactiveColor: widget.isDark ? const Color(0xFF242424) : const Color(0xFFE5E5E5),
+                  dotShape: StudioProvider.of(context).shape,
                   dotRadius: 6,
                   dotGap: 4,
                 ),
@@ -759,7 +765,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
     );
   }
 
-  Widget _buildGridCanvas(Color borderColor) {
+  Widget _buildGridCanvas(Color borderColor, StudioProvider studio) {
     return GridView.builder(
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -782,7 +788,10 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
               color: isActive 
                   ? _activeColor 
                   : (widget.isDark ? const Color(0xFF141414) : const Color(0xFFE5E5E5)),
-              borderRadius: StudioProvider.of(context).borderRadius,
+              shape: BoxShape.rectangle,
+              borderRadius: studio.shape == DotShape.circle 
+                  ? BorderRadius.circular(99) 
+                  : BorderRadius.circular(4),
               boxShadow: isActive ? [
                 BoxShadow(
                   color: _activeColor.withValues(alpha: 0.4),
@@ -803,7 +812,10 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                 height: 4,
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.6),
-                  borderRadius: StudioProvider.of(context).borderRadius / 4,
+                  shape: BoxShape.rectangle,
+                  borderRadius: studio.shape == DotShape.circle 
+                      ? BorderRadius.circular(4) 
+                      : BorderRadius.circular(1),
                 ),
               ),
             ) : null,
@@ -1044,6 +1056,7 @@ class _MiniFramePainter extends CustomPainter {
     required this.cols,
     required this.activeColor,
     required this.inactiveColor,
+    required this.dotShape,
   });
 
   final List<List<bool>> frame;
@@ -1051,6 +1064,7 @@ class _MiniFramePainter extends CustomPainter {
   final int cols;
   final Color activeColor;
   final Color inactiveColor;
+  final DotShape dotShape;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1065,7 +1079,19 @@ class _MiniFramePainter extends CustomPainter {
       for (int c = 0; c < cols; c++) {
         final cx = c * cellW + cellW / 2;
         final cy = r * cellH + cellH / 2;
-        canvas.drawCircle(Offset(cx, cy), radius, frame[r][c] ? activePaint : inactivePaint);
+        final paint = frame[r][c] ? activePaint : inactivePaint;
+
+        if (dotShape == DotShape.circle) {
+          canvas.drawCircle(Offset(cx, cy), radius, paint);
+        } else {
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(
+              Rect.fromCenter(center: Offset(cx, cy), width: radius * 2, height: radius * 2),
+              Radius.circular(radius * 0.4),
+            ),
+            paint,
+          );
+        }
       }
     }
   }
@@ -1083,6 +1109,7 @@ class _LivePreviewBottomSheet extends StatelessWidget {
     required this.isDark,
     required this.onExport,
     required this.copied,
+    required this.dotShape,
   });
 
   final List<List<List<bool>>> frames;
@@ -1092,6 +1119,7 @@ class _LivePreviewBottomSheet extends StatelessWidget {
   final bool isDark;
   final VoidCallback onExport;
   final bool copied;
+  final DotShape dotShape;
 
   @override
   Widget build(BuildContext context) {
@@ -1183,6 +1211,7 @@ class _LivePreviewBottomSheet extends StatelessWidget {
                     columns: cols,
                     activeColor: activeColor,
                     inactiveColor: isDark ? const Color(0xFF1C1C1C) : const Color(0xFFDDDDDD),
+                    dotShape: dotShape,
                     dotRadius: 3.5,
                     dotGap: 8,
                   ),
