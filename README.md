@@ -67,9 +67,9 @@ Row(
 
 | API | Analogy | Best for |
 |---|---|---|
-| Built-in presets (`PulseRings()`, etc.) | Material Icons | Drop-in loaders, no code needed |
-| `CustomDotAnimation(builder: ...)` | A shader | Continuous math-defined animations |
-| `SequenceAnimation(frames: ...)` | A GIF | Frame-by-frame pixel art, custom icons |
+| Built-in presets (`PulseRings()`, etc.) | Material Icons | Instant, production-ready loaders with zero configuration |
+| `CustomDotAnimation(builder: ...)` | A shader | Procedural motion, fluid physics, and math-driven patterns |
+| `SequenceAnimation(frames: ...)` | A GIF | Deterministic frame-by-frame pixel art and custom iconography |
 
 ### Using a built-in preset
 
