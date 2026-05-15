@@ -264,7 +264,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
         SafeArea(
           child: Column(
             children: [
-              _buildTopBar(textColor, borderColor),
+              _buildTopBar(textColor, borderColor, studio),
               
               Expanded(
                 child: Stack(
@@ -298,7 +298,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
           left: 20,
           right: 20,
           bottom: 110,
-          child: _buildStudioToolbar(surfaceColor, borderColor, textColor),
+          child: _buildStudioToolbar(surfaceColor, borderColor, textColor, studio),
         ),
       ],
     );
@@ -314,7 +314,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
         Expanded(
           child: Column(
             children: [
-              _buildTopBar(textColor, borderColor, showExport: false),
+              _buildTopBar(textColor, borderColor, studio),
               Expanded(
                 child: Center(
                   child: Container(
@@ -371,40 +371,58 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                       
                       const SizedBox(height: 32),
                       
-                      _buildSidebarSection('ACTIVE COLOR', SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            for (final c in [
-                              Theme.of(context).colorScheme.primary,
-                              const Color(0xFF42A5F5),
-                              const Color(0xFF66BB6A),
-                              const Color(0xFFFFA726),
-                              const Color(0xFFAB47BC),
-                              const Color(0xFFEF5350),
-                              const Color(0xFF8D6E63),
-                            ])
-                              Padding(
-                                padding: const EdgeInsets.only(right: 10),
-                                child: GestureDetector(
-                                  onTap: () => setState(() => _activeColor = c),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    width: 28,
-                                    height: 28,
-                                    decoration: BoxDecoration(
-                                      color: c,
-                                      borderRadius: StudioProvider.of(context).borderRadius / 2,
-                                      border: Border.all(
-                                        color: _activeColor == c ? textColor : Colors.transparent,
-                                        width: 2,
-                                      ),
-                                    ),
+                      _buildSidebarSection('SHAPE & COLOR', Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              ShapeToggle(
+                                activeColor: _activeColor,
+                                onSurface: textColor,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      for (final c in [
+                                        Theme.of(context).colorScheme.primary,
+                                        const Color(0xFF42A5F5),
+                                        const Color(0xFF66BB6A),
+                                        const Color(0xFFFFA726),
+                                        const Color(0xFFAB47BC),
+                                        const Color(0xFFEF5350),
+                                        const Color(0xFF8D6E63),
+                                      ])
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 10),
+                                          child: GestureDetector(
+                                            onTap: () => setState(() => _activeColor = c),
+                                            child: AnimatedContainer(
+                                              duration: const Duration(milliseconds: 200),
+                                              width: 28,
+                                              height: 28,
+                                              decoration: BoxDecoration(
+                                                color: c,
+                                                borderRadius: studio.shape == DotShape.circle 
+                                                    ? BorderRadius.circular(99) 
+                                                    : studio.borderRadius / 2,
+                                                border: Border.all(
+                                                  color: _activeColor == c ? textColor : Colors.transparent,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
                               ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ), textColor),
                       
                       const SizedBox(height: 32),
@@ -547,7 +565,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
     );
   }
 
-  Widget _buildTopBar(Color textColor, Color borderColor, {bool showExport = true}) {
+  Widget _buildTopBar(Color textColor, Color borderColor, StudioProvider studio) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: BoxDecoration(
@@ -560,7 +578,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Sequence Builder.',
+                'Sequence Builder',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
@@ -582,18 +600,17 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
           
           Row(
             children: [
-              if (showExport)
-                Material(
+              Material(
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: _copyCode,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: studio.borderRadius,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         color: _copied ? Colors.green : _activeColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: studio.borderRadius,
                         border: Border.all(
                           color: _copied ? Colors.green : _activeColor.withValues(alpha: 0.3),
                         ),
@@ -620,10 +637,6 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                   ),
                 ),
               const SizedBox(width: 12),
-              ShapeToggle(
-                activeColor: _activeColor,
-                onSurface: textColor,
-              ),
             ],
           ),
         ],
@@ -826,7 +839,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
     );
   }
 
-  Widget _buildStudioToolbar(Color surfaceColor, Color borderColor, Color textColor) {
+  Widget _buildStudioToolbar(Color surfaceColor, Color borderColor, Color textColor, StudioProvider studio) {
     final isDark = widget.isDark;
     final cardBg = isDark ? const Color(0xFF111111) : const Color(0xFFF5F5F5);
     final shadowColor = isDark ? Colors.black.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.1);
@@ -863,6 +876,11 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Row(
                       children: [
+                        ShapeToggle(
+                          activeColor: _activeColor,
+                          onSurface: textColor,
+                        ),
+                        const SizedBox(width: 12),
                         for (final c in [
                           Theme.of(context).colorScheme.primary,
                           const Color(0xFF42A5F5),
@@ -885,7 +903,9 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                                 height: 22,
                                 decoration: BoxDecoration(
                                   color: c,
-                                  shape: BoxShape.circle,
+                                  borderRadius: studio.shape == DotShape.circle 
+                                      ? BorderRadius.circular(99) 
+                                      : studio.borderRadius / 3, // Smaller radius for the compact toolbar
                                   border: Border.all(
                                     color: _activeColor == c ? textColor : Colors.transparent,
                                     width: 2,

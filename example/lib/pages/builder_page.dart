@@ -1150,7 +1150,9 @@ class _ColorRow extends StatelessWidget {
                   height: 24,
                   decoration: BoxDecoration(
                     color: c,
-                    shape: BoxShape.circle,
+                    borderRadius: StudioProvider.of(context).shape == DotShape.circle 
+                        ? BorderRadius.circular(99) 
+                        : StudioProvider.of(context).borderRadius / 2,
                     border: Border.all(
                       color: isSelected ? ringColor : Colors.transparent,
                       width: 2,

@@ -501,14 +501,16 @@ class _ShowcasePageState extends State<ShowcasePage>
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            '36 built-in patterns. One controller.\n'
-            'Zero extra tickers.',
-            style: TextStyle(
-              fontSize: 13,
-              color: onSurface.withValues(alpha: 0.45),
-              height: 1.55,
-            ),
+          Row(
+            children: [
+              _buildSpecLabel('36 PRESETS', onSurface),
+              _buildSpecDivider(onSurface),
+              _buildSpecLabel('1 CONTROLLER', onSurface),
+              _buildSpecDivider(onSurface),
+              _buildSpecLabel('60 FPS', onSurface),
+              _buildSpecDivider(onSurface),
+              _buildSpecLabel('ZERO DEPS', onSurface),
+            ],
           ),
           const SizedBox(height: 24),
           Container(
@@ -755,6 +757,31 @@ class _ShowcasePageState extends State<ShowcasePage>
       ),
     );
   }
+
+  Widget _buildSpecLabel(String label, Color color) {
+    return Text(
+      label,
+      style: TextStyle(
+        fontSize: 9,
+        fontWeight: FontWeight.w800,
+        color: color.withValues(alpha: 0.4),
+        letterSpacing: 0.8,
+      ),
+    );
+  }
+
+  Widget _buildSpecDivider(Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Text(
+        '•',
+        style: TextStyle(
+          fontSize: 9,
+          color: color.withValues(alpha: 0.2),
+        ),
+      ),
+    );
+  }
 }
 
 class _ColorDot extends StatelessWidget {
@@ -782,7 +809,9 @@ class _ColorDot extends StatelessWidget {
         height: 22,
         decoration: BoxDecoration(
           color: color,
-          borderRadius: studio.borderRadius / 2, // Scaled down for small dots
+          borderRadius: studio.shape == DotShape.circle 
+              ? BorderRadius.circular(99) 
+              : studio.borderRadius / 2,
           border: Border.all(
             color: selected ? ringColor : Colors.transparent,
             width: 2,

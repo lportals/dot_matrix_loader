@@ -83,7 +83,6 @@ Define any animation as a function of `(row, col, rows, cols, t)`:
 DotMatrixLoader(
   preset: CustomDotAnimation(
     builder: (row, col, rows, cols, t) {
-      import 'dart:math' as math;
       final cx = (cols - 1) / 2.0;
       final cy = (rows - 1) / 2.0;
       final dist = math.sqrt(math.pow(col - cx, 2) + math.pow(row - cy, 2));
