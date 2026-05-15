@@ -216,7 +216,7 @@ DotState _sonar(int row, int col, int rows, int cols, double t) {
   final dist = math.sqrt(math.pow(col - (cols-1)/2, 2) + math.pow(row - (rows-1), 2));
   final maxD = math.sqrt(math.pow((cols-1)/2, 2) + math.pow(rows-1, 2));
   final v = math.pow((1.0 - (t - dist/maxD).clamp(0.0, 1.0)), 4).toDouble();
-  return t > dist/maxD ? DotState(opacity: v, scale: v) : const DotState(opacity: 0, scale: 0);
+  return t > dist/maxD ? DotState(opacity: v, scale: 0.3 + 0.7 * v) : const DotState(opacity: 0, scale: 0.3);
 }
 
 DotState _curtain(int row, int col, int rows, int cols, double t) {
@@ -243,8 +243,8 @@ DotState _genome(int row, int col, int rows, int cols, double t) {
 DotState _stackFill(int row, int col, int rows, int cols, double t) {
   final target = (rows-1) - (t*rows).floor();
   if (row > target) return const DotState(opacity: 1, scale: 1);
-  if (row < target) return const DotState(opacity: 0, scale: 0);
-  final p = (t*rows) % 1.0; return DotState(opacity: p, scale: p);
+  if (row < target) return const DotState(opacity: 0, scale: 0.3);
+  final p = (t*rows) % 1.0; return DotState(opacity: p, scale: 0.3 + 0.7 * p);
 }
 
 DotState _veil(int row, int col, int rows, int cols, double t) {
@@ -268,7 +268,7 @@ DotState _scanner(int row, int col, int rows, int cols, double t) {
 DotState _collapse(int row, int col, int rows, int cols, double t) {
   final dist = math.sqrt(math.pow(col-(cols-1)/2, 2) + math.pow(row-(rows-1)/2, 2));
   final maxD = math.sqrt(math.pow((cols-1)/2, 2) + math.pow((rows-1)/2, 2));
-  final v = dist < (1-t)*maxD ? 1.0 : 0.0; return DotState(opacity: v, scale: v);
+  final v = dist < (1-t)*maxD ? 1.0 : 0.0; return DotState(opacity: v, scale: 0.3 + 0.7 * v);
 }
 
 DotState _static(int row, int col, int rows, int cols, double t) {
@@ -293,7 +293,7 @@ DotState _rippleIn(int row, int col, int rows, int cols, double t) {
 }
 
 DotState _wipe(int row, int col, int rows, int cols, double t) {
-  final v = (col/cols < t) ? 1.0 : 0.0; return DotState(opacity: v, scale: v);
+  final v = (col/cols < t) ? 1.0 : 0.0; return DotState(opacity: v, scale: 0.3 + 0.7 * v);
 }
 
 DotState _twinkle(int row, int col, int rows, int cols, double t) {
@@ -314,7 +314,7 @@ DotState _equalizer(int row, int col, int rows, int cols, double t) {
 
 DotState _gravity(int row, int col, int rows, int cols, double t) {
   final r = ((t + col*0.1) % 1.0 * rows).floor();
-  final isMe = (row == r); return DotState(opacity: isMe ? 1.0 : 0.0, scale: isMe ? 1.0 : 0.0);
+  final isMe = (row == r); return DotState(opacity: isMe ? 1.0 : 0.0, scale: isMe ? 1.0 : 0.3);
 }
 
 DotState _glitch(int row, int col, int rows, int cols, double t) {

@@ -244,7 +244,7 @@ class ShapeToggle extends StatelessWidget {
           borderRadius: studio.borderRadius,
         ),
         child: Icon(
-          isCircle ? Icons.circle_outlined : Icons.square_rounded,
+          isCircle ? Icons.circle_outlined : Icons.crop_square_rounded,
           size: 18,
           color: onSurface.withValues(alpha: 0.55),
         ),

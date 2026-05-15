@@ -100,7 +100,7 @@ class _RootShellState extends State<_RootShell> {
                     ShowcasePage(
                       isDark: studio.isDark,
                       onToggleTheme: studio.onToggleTheme,
-                      onSelectPreset: (name) {
+                      onSelectPreset: (name, rows, cols, speed, color) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -108,6 +108,10 @@ class _RootShellState extends State<_RootShell> {
                               isDark: studio.isDark,
                               onToggleTheme: studio.onToggleTheme,
                               initialPresetName: name,
+                              initialRows: rows,
+                              initialCols: cols,
+                              initialSpeed: speed,
+                              initialColor: color,
                             ),
                           ),
                         );

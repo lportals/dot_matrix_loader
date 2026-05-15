@@ -190,6 +190,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
     sb.writeln('    columns: $_cols,');
     sb.writeln('    activeColor: const Color(0xFF$colorHex),');
     sb.writeln('    inactiveColor: const Color(0xFF1C1C1C),');
+    sb.writeln('    dotShape: DotShape.${StudioProvider.of(context).shape.name},');
     sb.writeln('  ),');
     sb.writeln(')');
     return sb.toString();

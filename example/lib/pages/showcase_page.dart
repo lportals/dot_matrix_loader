@@ -295,7 +295,13 @@ class ShowcasePage extends StatefulWidget {
 
   final bool isDark;
   final VoidCallback onToggleTheme;
-  final ValueChanged<String> onSelectPreset;
+  final void Function(
+    String name,
+    int rows,
+    int cols,
+    double speed,
+    Color color,
+  ) onSelectPreset;
 
   @override
   State<ShowcasePage> createState() => _ShowcasePageState();
@@ -409,7 +415,13 @@ class _ShowcasePageState extends State<ShowcasePage>
                     cols: _cols,
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      widget.onSelectPreset(entry.name);
+                      widget.onSelectPreset(
+                        entry.name,
+                        _rows,
+                        _cols,
+                        _speed,
+                        _activeColor,
+                      );
                     },
                   ),
                 );

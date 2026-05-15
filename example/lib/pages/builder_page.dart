@@ -17,6 +17,10 @@ class BuilderPage extends StatefulWidget {
     required this.isDark,
     required this.onToggleTheme,
     this.initialPresetName,
+    this.initialRows,
+    this.initialCols,
+    this.initialSpeed,
+    this.initialColor,
   });
 
   final bool isDark;
@@ -24,6 +28,11 @@ class BuilderPage extends StatefulWidget {
 
   /// Name of the preset to show on first load (matches [_PresetRegistry] keys).
   final String? initialPresetName;
+
+  final int? initialRows;
+  final int? initialCols;
+  final double? initialSpeed;
+  final Color? initialColor;
 
   @override
   State<BuilderPage> createState() => _BuilderPageState();
@@ -106,16 +115,28 @@ class _BuilderPageState extends State<BuilderPage>
                 _presetRegistry.containsKey(widget.initialPresetName)
             ? widget.initialPresetName!
             : _presetRegistry.keys.first;
+
+    _rows = widget.initialRows ?? 5;
+    _cols = widget.initialCols ?? 5;
+    _speed = widget.initialSpeed ?? 1.0;
+    // Note: _activeColor is initialized in didChangeDependencies if not provided here,
+    // but we can set it here if we have it.
+    if (widget.initialColor != null) {
+      _activeColor = widget.initialColor!;
+    }
+
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: Duration(milliseconds: (1200 / _speed).round()),
     )..repeat();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _activeColor = Theme.of(context).colorScheme.primary;
+    if (widget.initialColor == null) {
+      _activeColor = Theme.of(context).colorScheme.primary;
+    }
   }
 
   @override
@@ -263,12 +284,11 @@ class _BuilderPageState extends State<BuilderPage>
             padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
             child: Center(
               child: Container(
-                width: 160,
-                height: 160,
+                width: (_loaderSize + 80).clamp(140.0, 240.0),
+                height: (_loaderSize + 80).clamp(140.0, 240.0),
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  color: previewBg,
-                  borderRadius: StudioProvider.of(context).borderRadius * 1.5,
+                  borderRadius: StudioProvider.of(context).borderRadius * 1.2,
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -277,10 +297,10 @@ class _BuilderPageState extends State<BuilderPage>
                       children: [
                         Center(
                           child: Container(
-                            padding: const EdgeInsets.all(40),
+                            padding: EdgeInsets.all(_loaderSize * 0.4 + 20),
                             decoration: BoxDecoration(
                               color: onSurface.withValues(alpha: 0.03),
-                              borderRadius: StudioProvider.of(context).borderRadius * 2,
+                              borderRadius: StudioProvider.of(context).borderRadius,
                               border: Border.all(
                                 color: onSurface.withValues(alpha: 0.05),
                               ),
@@ -447,10 +467,10 @@ class _BuilderPageState extends State<BuilderPage>
                               maxWidth: previewConstraints.maxWidth * 0.8,
                               maxHeight: previewConstraints.maxHeight * 0.8,
                             ),
-                            padding: const EdgeInsets.all(64),
+                            padding: EdgeInsets.all((_loaderSize * previewScale) * 0.3 + 32),
                             decoration: BoxDecoration(
                               color: onSurface.withValues(alpha: 0.02),
-                              borderRadius: StudioProvider.of(context).borderRadius * 2,
+                              borderRadius: StudioProvider.of(context).borderRadius * 1.2,
                               border: Border.all(
                                 color: onSurface.withValues(alpha: 0.05),
                               ),
@@ -734,9 +754,11 @@ class _BuilderPageState extends State<BuilderPage>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              shape == DotShape.circle ? Icons.circle_outlined : Icons.square_rounded,
+              shape == DotShape.circle ? Icons.circle_outlined : Icons.crop_square_rounded,
               size: 14,
-              color: active ? Colors.white : onSurface.withValues(alpha: 0.4),
+              color: active 
+                  ? (_activeColor.computeLuminance() > 0.5 ? Colors.black : Colors.white)
+                  : onSurface.withValues(alpha: 0.4),
             ),
             const SizedBox(width: 8),
             Text(
@@ -744,7 +766,9 @@ class _BuilderPageState extends State<BuilderPage>
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: active ? Colors.white : onSurface.withValues(alpha: 0.6),
+                color: active 
+                    ? (_activeColor.computeLuminance() > 0.5 ? Colors.black : Colors.white)
+                    : onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -1186,7 +1210,12 @@ class _Toggle extends StatelessWidget {
           child: Container(
             width: 20,
             height: 20,
-            decoration: BoxDecoration(color: onSurface, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: value 
+                  ? (activeColor.computeLuminance() > 0.5 ? Colors.black : Colors.white)
+                  : onSurface, 
+              shape: BoxShape.circle
+            ),
           ),
         ),
       ),
