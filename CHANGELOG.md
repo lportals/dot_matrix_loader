@@ -1,3 +1,8 @@
+## 0.1.3
+
+- Force README asset refresh for pub.dev using cache-busting URLs.
+- Added professional badges to README.
+
 ## 0.1.2
 
 - Final fix for README asset paths using absolute GitHub URLs.
