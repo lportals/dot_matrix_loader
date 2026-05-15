@@ -1,3 +1,7 @@
+## 0.1.2
+
+- Final fix for README asset paths using absolute GitHub URLs.
+
 ## 0.1.1
 
 - Fix README asset paths for proper rendering on pub.dev.
