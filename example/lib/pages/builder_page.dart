@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dot_matrix_loader/dot_matrix_loader.dart';
 import '../widgets/studio_widgets.dart';
+import '../studio_provider.dart';
 
 /// Detail & export page for a specific [DotMatrixPreset].
 ///
@@ -91,7 +92,6 @@ class _BuilderPageState extends State<BuilderPage>
   double _speed = 1.0;
   int _rows = 5;
   int _cols = 5;
-  DotShape _dotShape = DotShape.circle;
   bool _enableColorLerp = true;
   bool _copied = false;
 
@@ -161,7 +161,8 @@ class _BuilderPageState extends State<BuilderPage>
     if (_dotGap != 6.0)
       sb.writeln('    dotGap: ${_dotGap.toStringAsFixed(1)},');
     if (_speed != 1.0) sb.writeln('    speed: ${_speed.toStringAsFixed(2)},');
-    if (_dotShape != DotShape.circle)
+    final currentShape = StudioProvider.of(context).shape;
+    if (currentShape != DotShape.circle)
       sb.writeln('    dotShape: DotShape.roundedSquare,');
     if (!_enableColorLerp) sb.writeln('    enableColorLerp: false,');
     sb.writeln('  ),');
@@ -249,7 +250,6 @@ class _BuilderPageState extends State<BuilderPage>
                       color: onSurface,
                       letterSpacing: -0.8,
                     ),
-                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -267,7 +267,7 @@ class _BuilderPageState extends State<BuilderPage>
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
                   color: previewBg,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: StudioProvider.of(context).borderRadius * 1.5,
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -279,7 +279,7 @@ class _BuilderPageState extends State<BuilderPage>
                             padding: const EdgeInsets.all(40),
                             decoration: BoxDecoration(
                               color: onSurface.withValues(alpha: 0.03),
-                              borderRadius: BorderRadius.circular(32),
+                              borderRadius: StudioProvider.of(context).borderRadius * 2,
                               border: Border.all(
                                 color: onSurface.withValues(alpha: 0.05),
                               ),
@@ -318,8 +318,7 @@ class _BuilderPageState extends State<BuilderPage>
                                     inactiveColor: inactiveDot,
                                     dotRadius: _dotRadius,
                                     dotGap: _dotGap,
-                                    speed: _speed,
-                                    dotShape: _dotShape,
+                                    dotShape: StudioProvider.of(context).shape,
                                     enableColorLerp: _enableColorLerp,
                                   ),
                                   externalAnimation: _controller,
@@ -450,7 +449,7 @@ class _BuilderPageState extends State<BuilderPage>
                             padding: const EdgeInsets.all(64),
                             decoration: BoxDecoration(
                               color: onSurface.withValues(alpha: 0.02),
-                              borderRadius: BorderRadius.circular(48),
+                              borderRadius: StudioProvider.of(context).borderRadius * 2,
                               border: Border.all(
                                 color: onSurface.withValues(alpha: 0.05),
                               ),
@@ -497,8 +496,7 @@ class _BuilderPageState extends State<BuilderPage>
                                     dotRadius:
                                         _dotRadius * (previewScale * 0.8),
                                     dotGap: _dotGap * (previewScale * 0.8),
-                                    speed: _speed,
-                                    dotShape: _dotShape,
+                                    dotShape: StudioProvider.of(context).shape,
                                     enableColorLerp: _enableColorLerp,
                                   ),
                                   externalAnimation: _controller,
@@ -681,30 +679,9 @@ class _BuilderPageState extends State<BuilderPage>
                               const SizedBox(height: 24),
                               Row(
                                 children: [
-                                  _ShapeChip(
-                                    label: 'Circle',
-                                    selected: _dotShape == DotShape.circle,
-                                    activeColor: _activeColor,
-                                    onSurface: onSurface,
-                                    onTap:
-                                        () => setState(
-                                          () => _dotShape = DotShape.circle,
-                                        ),
-                                  ),
+                                  _buildShapeOption('Circle', DotShape.circle, onSurface),
                                   const SizedBox(width: 8),
-                                  _ShapeChip(
-                                    label: 'Rounded',
-                                    selected:
-                                        _dotShape == DotShape.roundedSquare,
-                                    activeColor: _activeColor,
-                                    onSurface: onSurface,
-                                    onTap:
-                                        () => setState(
-                                          () =>
-                                              _dotShape =
-                                                  DotShape.roundedSquare,
-                                        ),
-                                  ),
+                                  _buildShapeOption('Rounded', DotShape.roundedSquare, onSurface),
                                 ],
                               ),
                             ],
@@ -731,6 +708,47 @@ class _BuilderPageState extends State<BuilderPage>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildShapeOption(String label, DotShape shape, Color onSurface) {
+    final studio = StudioProvider.of(context);
+    final active = studio.shape == shape;
+    return StudioInteractiveWrapper(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        studio.onShapeChanged(shape);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: active ? _activeColor : onSurface.withValues(alpha: 0.05),
+          borderRadius: studio.borderRadius,
+          border: Border.all(
+            color: active ? _activeColor : onSurface.withValues(alpha: 0.08),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              shape == DotShape.circle ? Icons.circle_outlined : Icons.square_rounded,
+              size: 14,
+              color: active ? Colors.white : onSurface.withValues(alpha: 0.4),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: active ? Colors.white : onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -919,21 +937,9 @@ class _BuilderPageState extends State<BuilderPage>
         const SizedBox(height: 10),
         Row(
           children: [
-            _ShapeChip(
-              label: 'Circle',
-              selected: _dotShape == DotShape.circle,
-              activeColor: _activeColor,
-              onSurface: onSurface,
-              onTap: () => setState(() => _dotShape = DotShape.circle),
-            ),
+            _buildShapeOption('Circle', DotShape.circle, onSurface),
             const SizedBox(width: 8),
-            _ShapeChip(
-              label: 'Rounded Square',
-              selected: _dotShape == DotShape.roundedSquare,
-              activeColor: _activeColor,
-              onSurface: onSurface,
-              onTap: () => setState(() => _dotShape = DotShape.roundedSquare),
-            ),
+            _buildShapeOption('Rounded', DotShape.roundedSquare, onSurface),
           ],
         ),
         const SizedBox(height: 24),
@@ -1138,56 +1144,6 @@ class _ColorRow extends StatelessWidget {
               ),
             );
           }).toList(),
-    );
-  }
-}
-
-/// Dot shape selector chip.
-class _ShapeChip extends StatelessWidget {
-  const _ShapeChip({
-    required this.label,
-    required this.selected,
-    required this.activeColor,
-    required this.onSurface,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final Color activeColor;
-  final Color onSurface;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return StudioInteractiveWrapper(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? activeColor : onSurface.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected
-                ? activeColor.withValues(alpha: 0.2)
-                : onSurface.withValues(alpha: 0.06),
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color:
-                selected
-                    ? (activeColor.computeLuminance() > 0.5
-                        ? Colors.black
-                        : Colors.white)
-                    : onSurface.withValues(alpha: 0.5),
-          ),
-        ),
-      ),
     );
   }
 }

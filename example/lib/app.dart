@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:dot_matrix_loader/dot_matrix_loader.dart';
 import 'pages/showcase_page.dart';
 import 'pages/builder_page.dart';
 import 'pages/sequence_builder_page.dart';
+import 'studio_provider.dart';
 
 /// Root application widget with a theme toggle (dark / light).
 class DotMatrixApp extends StatefulWidget {
@@ -13,52 +15,59 @@ class DotMatrixApp extends StatefulWidget {
 
 class _DotMatrixAppState extends State<DotMatrixApp> {
   bool _isDark = true;
+  DotShape _globalShape = DotShape.circle;
 
   void _toggleTheme() => setState(() => _isDark = !_isDark);
+  void _setGlobalShape(DotShape shape) => setState(() => _globalShape = shape);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Dot Matrix Loader',
-      debugShowCheckedModeBanner: false,
-      themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
-      // ── Dark theme ─────────────────────────────────────────────────────────
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF080808),
-        colorScheme: const ColorScheme.dark(
-          surface: Color(0xFF080808),
-          primary: Colors.white,
-          onPrimary: Colors.black,
-          onSurface: Colors.white,
-        ),
-        fontFamily: '',
+    return StudioProvider(
+      shape: _globalShape,
+      onShapeChanged: _setGlobalShape,
+      isDark: _isDark,
+      onToggleTheme: _toggleTheme,
+      child: Builder(
+        builder: (context) {
+          final studio = StudioProvider.of(context);
+          return MaterialApp(
+            title: 'Dot Matrix Loader',
+            debugShowCheckedModeBanner: false,
+            themeMode: studio.isDark ? ThemeMode.dark : ThemeMode.light,
+            // ── Dark theme ─────────────────────────────────────────────────────────
+            darkTheme: ThemeData(
+              brightness: Brightness.dark,
+              scaffoldBackgroundColor: const Color(0xFF080808),
+              colorScheme: const ColorScheme.dark(
+                surface: Color(0xFF080808),
+                primary: Colors.white,
+                onPrimary: Colors.black,
+                onSurface: Colors.white,
+              ),
+              fontFamily: '',
+            ),
+            // ── Light theme ────────────────────────────────────────────────────────
+            theme: ThemeData(
+              brightness: Brightness.light,
+              scaffoldBackgroundColor: const Color(0xFFF2F2F2),
+              colorScheme: const ColorScheme.light(
+                surface: Color(0xFFF2F2F2),
+                primary: Colors.black,
+                onPrimary: Colors.white,
+                onSurface: Colors.black,
+              ),
+              fontFamily: '',
+            ),
+            home: const _RootShell(),
+          );
+        }
       ),
-      // ── Light theme ────────────────────────────────────────────────────────
-      theme: ThemeData(
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: const Color(0xFFF2F2F2),
-        colorScheme: const ColorScheme.light(
-          surface: Color(0xFFF2F2F2),
-          primary: Colors.black,
-          onPrimary: Colors.white,
-          onSurface: Colors.black,
-        ),
-        fontFamily: '',
-      ),
-      home: _RootShell(isDark: _isDark, onToggleTheme: _toggleTheme),
     );
   }
 }
 
 class _RootShell extends StatefulWidget {
-  const _RootShell({
-    required this.isDark,
-    required this.onToggleTheme,
-  });
-
-  final bool isDark;
-  final VoidCallback onToggleTheme;
+  const _RootShell();
 
   @override
   State<_RootShell> createState() => _RootShellState();
@@ -69,6 +78,8 @@ class _RootShellState extends State<_RootShell> {
 
   @override
   Widget build(BuildContext context) {
+    final studio = StudioProvider.of(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 600;
@@ -87,15 +98,15 @@ class _RootShellState extends State<_RootShell> {
                   index: _currentIndex,
                   children: [
                     ShowcasePage(
-                      isDark: widget.isDark,
-                      onToggleTheme: widget.onToggleTheme,
+                      isDark: studio.isDark,
+                      onToggleTheme: studio.onToggleTheme,
                       onSelectPreset: (name) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => BuilderPage(
-                              isDark: widget.isDark,
-                              onToggleTheme: widget.onToggleTheme,
+                              isDark: studio.isDark,
+                              onToggleTheme: studio.onToggleTheme,
                               initialPresetName: name,
                             ),
                           ),
@@ -103,8 +114,8 @@ class _RootShellState extends State<_RootShell> {
                       },
                     ),
                     SequenceBuilderPage(
-                      isDark: widget.isDark,
-                      onToggleTheme: widget.onToggleTheme,
+                      isDark: studio.isDark,
+                      onToggleTheme: studio.onToggleTheme,
                     ),
                   ],
                 ),

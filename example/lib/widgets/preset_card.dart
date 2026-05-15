@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dot_matrix_loader/dot_matrix_loader.dart';
+import '../studio_provider.dart';
 
 
 
@@ -29,6 +30,7 @@ class PresetCard extends StatefulWidget {
     required this.entry,
     required this.sharedAnimation,
     required this.activeColor,
+    required this.dotShape,
     this.rows = 5,
     this.cols = 5,
     this.onTap,
@@ -37,6 +39,7 @@ class PresetCard extends StatefulWidget {
   final PresetCardData entry;
   final Animation<double> sharedAnimation;
   final Color activeColor;
+  final DotShape dotShape;
   final VoidCallback? onTap;
 
   /// Number of rows in the dot grid preview.
@@ -62,6 +65,7 @@ class _PresetCardState extends State<PresetCard> {
         : Colors.black.withValues(alpha: 0.06);
     final inactiveDot = isDark ? const Color(0xFF1C1C1C) : const Color(0xFFDDDDDD);
     final onSurface = Theme.of(context).colorScheme.onSurface;
+    final studio = StudioProvider.of(context);
 
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
@@ -77,7 +81,7 @@ class _PresetCardState extends State<PresetCard> {
         child: Container(
           decoration: BoxDecoration(
             color: cardBg,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: studio.borderRadius,
             border: Border.all(color: borderColor),
           ),
           child: Column(
@@ -88,8 +92,8 @@ class _PresetCardState extends State<PresetCard> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: previewBg,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(20),
+                    borderRadius: BorderRadius.vertical(
+                      top: studio.borderRadius.topLeft,
                     ),
                   ),
                   child: Center(
@@ -102,6 +106,7 @@ class _PresetCardState extends State<PresetCard> {
                           inactiveColor: inactiveDot,
                           rows: widget.rows,
                           columns: widget.cols,
+                          dotShape: widget.dotShape,
                           dotRadius: 5.5,
                           dotGap: 6,
                         ),

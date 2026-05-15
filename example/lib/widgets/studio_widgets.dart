@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../studio_provider.dart';
+import 'package:dot_matrix_loader/dot_matrix_loader.dart';
 
 /// A premium, physics-based export button designed for the Studio Sidebar.
 class SidebarExportButton extends StatefulWidget {
@@ -43,7 +46,7 @@ class _SidebarExportButtonState extends State<SidebarExportButton> {
           width: double.infinity,
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: StudioProvider.of(context).borderRadius,
             boxShadow: [
               BoxShadow(
                 color: bgColor.withValues(alpha: 0.3),
@@ -208,6 +211,43 @@ class _StudioInteractiveWrapperState extends State<StudioInteractiveWrapper> {
         duration: const Duration(milliseconds: 160),
         curve: Curves.easeOutCubic,
         child: widget.child,
+      ),
+    );
+  }
+}
+class ShapeToggle extends StatelessWidget {
+  const ShapeToggle({
+    super.key,
+    required this.activeColor,
+    required this.onSurface,
+  });
+
+  final Color activeColor;
+  final Color onSurface;
+
+  @override
+  Widget build(BuildContext context) {
+    final studio = StudioProvider.of(context);
+    final isCircle = studio.shape == DotShape.circle;
+    
+    return StudioInteractiveWrapper(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        studio.onShapeChanged(isCircle ? DotShape.roundedSquare : DotShape.circle);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: onSurface.withValues(alpha: 0.07),
+          borderRadius: studio.borderRadius,
+        ),
+        child: Icon(
+          isCircle ? Icons.circle_outlined : Icons.square_rounded,
+          size: 18,
+          color: onSurface.withValues(alpha: 0.55),
+        ),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import 'package:dot_matrix_loader/dot_matrix_loader.dart';
 import '../widgets/studio_widgets.dart';
+import '../studio_provider.dart';
 
 
 
@@ -388,7 +389,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                                     height: 28,
                                     decoration: BoxDecoration(
                                       color: c,
-                                      shape: BoxShape.circle,
+                                      borderRadius: StudioProvider.of(context).borderRadius / 2,
                                       border: Border.all(
                                         color: _activeColor == c ? textColor : Colors.transparent,
                                         width: 2,
@@ -574,45 +575,52 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
             ],
           ),
           
-          // Compact Export Button
-          if (showExport)
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: _copyCode,
-                borderRadius: BorderRadius.circular(12),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: _copied ? Colors.green : _activeColor.withValues(alpha: 0.1),
+          Row(
+            children: [
+              if (showExport)
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _copyCode,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _copied ? Colors.green : _activeColor.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        _copied ? Icons.check_rounded : Icons.code_rounded,
-                        size: 16,
-                        color: _copied ? Colors.white : _activeColor,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _copied ? 'COPIED' : 'EXPORT',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                          color: _copied ? Colors.white : _activeColor,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: _copied ? Colors.green : _activeColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _copied ? Colors.green : _activeColor.withValues(alpha: 0.3),
                         ),
                       ),
-                    ],
+                      child: Row(
+                        children: [
+                          Icon(
+                            _copied ? Icons.check_rounded : Icons.code_rounded,
+                            size: 16,
+                            color: _copied ? Colors.white : _activeColor,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _copied ? 'COPIED' : 'EXPORT',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: _copied ? Colors.white : _activeColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
+              const SizedBox(width: 12),
+              ShapeToggle(
+                activeColor: _activeColor,
+                onSurface: textColor,
               ),
-            ),
+            ],
+          ),
         ],
       ),
     );
@@ -774,7 +782,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
               color: isActive 
                   ? _activeColor 
                   : (widget.isDark ? const Color(0xFF141414) : const Color(0xFFE5E5E5)),
-              shape: BoxShape.circle,
+              borderRadius: StudioProvider.of(context).borderRadius,
               boxShadow: isActive ? [
                 BoxShadow(
                   color: _activeColor.withValues(alpha: 0.4),
@@ -795,7 +803,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                 height: 4,
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.6),
-                  shape: BoxShape.circle,
+                  borderRadius: StudioProvider.of(context).borderRadius / 4,
                 ),
               ),
             ) : null,

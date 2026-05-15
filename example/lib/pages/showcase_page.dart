@@ -5,6 +5,7 @@ import 'package:dot_matrix_loader/dot_matrix_loader.dart';
 
 import '../widgets/preset_card.dart';
 import '../widgets/studio_widgets.dart';
+import '../studio_provider.dart';
 
 /// Preset metadata for the gallery grid.
 class _PresetEntry {
@@ -403,6 +404,7 @@ class _ShowcasePageState extends State<ShowcasePage>
                     ),
                     sharedAnimation: _sharedController,
                     activeColor: _activeColor,
+                    dotShape: StudioProvider.of(context).shape,
                     rows: _rows,
                     cols: _cols,
                     onTap: () {
@@ -588,6 +590,11 @@ class _ShowcasePageState extends State<ShowcasePage>
                   ),
                 ),
               ),
+              const SizedBox(width: 16),
+              ShapeToggle(
+                activeColor: _activeColor,
+                onSurface: onSurface,
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -710,7 +717,7 @@ class _ShowcasePageState extends State<ShowcasePage>
                 color: active
                     ? _activeColor
                     : onSurface.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: StudioProvider.of(context).borderRadius,
                 border: Border.all(
                   color: active
                       ? _activeColor.withValues(alpha: 0.2)
@@ -753,6 +760,7 @@ class _ColorDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final studio = StudioProvider.of(context);
     final ringColor = isDark ? Colors.white : Colors.black;
     return GestureDetector(
       onTap: onTap,
@@ -762,7 +770,7 @@ class _ColorDot extends StatelessWidget {
         height: 22,
         decoration: BoxDecoration(
           color: color,
-          shape: BoxShape.circle,
+          borderRadius: studio.borderRadius / 2, // Scaled down for small dots
           border: Border.all(
             color: selected ? ringColor : Colors.transparent,
             width: 2,
