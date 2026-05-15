@@ -1,3 +1,7 @@
+## 0.1.1
+
+- Fix README asset paths for proper rendering on pub.dev.
+
 ## 0.1.0
 
 ### Added
