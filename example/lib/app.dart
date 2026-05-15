@@ -69,38 +69,171 @@ class _RootShellState extends State<_RootShell> {
 
   @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      // Floating theme toggle in the top-right corner, above content.
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          ShowcasePage(
-            isDark: widget.isDark,
-            onToggleTheme: widget.onToggleTheme,
-            onSelectPreset: (name) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BuilderPage(
-                    isDark: widget.isDark,
-                    onToggleTheme: widget.onToggleTheme,
-                    initialPresetName: name,
-                  ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= 600;
+        
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          body: Row(
+            children: [
+              if (isDesktop)
+                _SidebarRail(
+                  currentIndex: _currentIndex,
+                  onTap: (i) => setState(() => _currentIndex = i),
                 ),
-              );
-            },
+              Expanded(
+                child: IndexedStack(
+                  index: _currentIndex,
+                  children: [
+                    ShowcasePage(
+                      isDark: widget.isDark,
+                      onToggleTheme: widget.onToggleTheme,
+                      onSelectPreset: (name) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BuilderPage(
+                              isDark: widget.isDark,
+                              onToggleTheme: widget.onToggleTheme,
+                              initialPresetName: name,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    SequenceBuilderPage(
+                      isDark: widget.isDark,
+                      onToggleTheme: widget.onToggleTheme,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          SequenceBuilderPage(
-            isDark: widget.isDark,
-            onToggleTheme: widget.onToggleTheme,
+          bottomNavigationBar: isDesktop 
+              ? null 
+              : _BottomBar(
+                  currentIndex: _currentIndex,
+                  onTap: (i) => setState(() => _currentIndex = i),
+                ),
+        );
+      },
+    );
+  }
+}
+
+class _SidebarRail extends StatelessWidget {
+  const _SidebarRail({
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final railBg = isDark ? const Color(0xFF0E0E0E) : const Color(0xFFFFFFFF);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.06)
+        : Colors.black.withValues(alpha: 0.08);
+
+    return Container(
+      width: 72,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        color: railBg,
+        border: Border(right: BorderSide(color: borderColor)),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 32),
+          Icon(Icons.blur_on_rounded, color: Theme.of(context).colorScheme.onSurface, size: 32),
+          const SizedBox(height: 48),
+          _RailTab(
+            label: 'Showcase',
+            icon: Icons.grid_view_rounded,
+            active: currentIndex == 0,
+            onTap: () => onTap(0),
+          ),
+          const SizedBox(height: 16),
+          _RailTab(
+            label: 'Sequence',
+            icon: Icons.auto_awesome_motion_rounded,
+            active: currentIndex == 1,
+            onTap: () => onTap(1),
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 32),
+            child: CircleAvatar(
+              radius: 16,
+              backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+              child: Icon(
+                Icons.person_outline_rounded,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
+            ),
           ),
         ],
       ),
-      bottomNavigationBar: _BottomBar(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+    );
+  }
+}
+
+class _RailTab extends StatelessWidget {
+  const _RailTab({
+    required this.label,
+    required this.icon,
+    required this.active,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final color = active ? cs.onSurface : cs.onSurface.withValues(alpha: 0.3);
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: 72,
+        height: 72,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (active)
+              Positioned(
+                left: 0,
+                top: 16,
+                bottom: 16,
+                child: Container(
+                  width: 3,
+                  decoration: BoxDecoration(
+                    color: cs.onSurface,
+                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(4)),
+                  ),
+                ),
+              ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, size: 24, color: color),
+                const SizedBox(height: 4),
+                Text(label, style: TextStyle(fontSize: 10, fontWeight: active ? FontWeight.w700 : FontWeight.w400, color: color)),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

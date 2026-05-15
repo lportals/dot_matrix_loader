@@ -27,12 +27,27 @@ class DotMatrixPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (size.width <= 0 || size.height <= 0) return;
 
-    // 1. Calculate the size of a single grid cell
-    final cellWidth = size.width / style.columns;
-    final cellHeight = size.height / style.rows;
+    // 1. Calculate the ideal grid dimensions based on absolute style values
+    final totalGridWidth = style.gridWidth;
+    final totalGridHeight = style.gridHeight;
 
-    // 2. Use the dotRadius from style.
-    final baseRadius = style.dotRadius;
+    // 2. Calculate scale factor to fit the grid into the available size
+    // We maintain aspect ratio by taking the minimum scale.
+    final scaleFactor = (size.width / totalGridWidth).clamp(0.0, double.infinity);
+    final scaleFactorY = (size.height / totalGridHeight).clamp(0.0, double.infinity);
+    final finalScale = scaleFactor < scaleFactorY ? scaleFactor : scaleFactorY;
+
+    // 3. Center the grid in the available space
+    final offsetX = (size.width - totalGridWidth * finalScale) / 2;
+    final offsetY = (size.height - totalGridHeight * finalScale) / 2;
+
+    canvas.save();
+    canvas.translate(offsetX, offsetY);
+    canvas.scale(finalScale);
+
+    final dotRadius = style.dotRadius;
+    final dotGap = style.dotGap;
+    final dotDiameter = dotRadius * 2;
 
     final paint = Paint()..style = PaintingStyle.fill;
 
@@ -47,11 +62,11 @@ class DotMatrixPainter extends CustomPainter {
             ? Color.lerp(style.inactiveColor, style.activeColor, opacity)!
             : style.activeColor.withValues(alpha: opacity);
 
-        // Center position for this specific dot
-        final cx = col * cellWidth + cellWidth / 2;
-        final cy = row * cellHeight + cellHeight / 2;
+        // Calculate absolute center position
+        final cx = dotRadius + col * (dotDiameter + dotGap);
+        final cy = dotRadius + row * (dotDiameter + dotGap);
 
-        final currentRadius = baseRadius * scale;
+        final currentRadius = dotRadius * scale;
 
         if (style.dotShape == DotShape.circle) {
           canvas.drawCircle(Offset(cx, cy), currentRadius, paint);
@@ -68,6 +83,7 @@ class DotMatrixPainter extends CustomPainter {
         }
       }
     }
+    canvas.restore();
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
 import 'package:dot_matrix_loader/dot_matrix_loader.dart';
+import '../widgets/studio_widgets.dart';
 
 
 
@@ -207,229 +208,616 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = widget.isDark ? const Color(0xFF0A0A0A) : const Color(0xFFF5F5F7);
-    final surfaceColor = widget.isDark ? const Color(0xFF141414) : Colors.white;
+    final bgColor = widget.isDark ? const Color(0xFF080808) : const Color(0xFFF8F9FA);
+    final surfaceColor = widget.isDark ? const Color(0xFF121212) : Colors.white;
     final textColor = widget.isDark ? Colors.white : Colors.black;
-    final subtextColor = widget.isDark ? Colors.white54 : Colors.black54;
-    final borderColor = widget.isDark ? const Color(0xFF2A2A2A) : const Color(0xFFE5E5E5);
+    final borderColor = widget.isDark ? const Color(0xFF1F1F1F) : const Color(0xFFE0E0E0);
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-              child: Row(
-                children: [
-                  Text(
-                    'Sequence Builder.',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -1.0,
-                      color: textColor,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isDesktop = constraints.maxWidth >= 600;
+          
+          if (isDesktop) {
+            return _buildDesktopLayout(surfaceColor, borderColor, textColor, constraints);
+          }
+          
+          return _buildMobileLayout(surfaceColor, borderColor, textColor);
+        },
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout(Color surfaceColor, Color borderColor, Color textColor) {
+    final isDark = widget.isDark;
+    final cardBg = isDark ? const Color(0xFF111111) : const Color(0xFFF5F5F5);
+
+    return Stack(
+      children: [
+        // ── Background & Canvas ──────────────────────────────────────────
+        SafeArea(
+          child: Column(
+            children: [
+              _buildTopBar(textColor, borderColor),
+              
+              Expanded(
+                child: Stack(
+                  children: [
+                    // The Grid Canvas (Focused and Compact)
+                    Positioned.fill(
+                      top: 0,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 64, vertical: 24),
+                        child: Align(
+                          alignment: const Alignment(0, -0.6),
+                          child: AspectRatio(
+                            aspectRatio: _cols / _rows,
+                            child: _buildGridCanvas(borderColor),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Bottom Area (Live Preview + Timeline)
+              _buildBottomRibbon(surfaceColor, borderColor, textColor),
+            ],
+          ),
+        ),
+
+        // ── Floating Studio Toolbar ──────────────────────────────────────
+        Positioned(
+          left: 20,
+          right: 20,
+          bottom: 110,
+          child: _buildStudioToolbar(surfaceColor, borderColor, textColor),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDesktopLayout(Color surfaceColor, Color borderColor, Color textColor, BoxConstraints constraints) {
+    final isDark = widget.isDark;
+    final cardBg = isDark ? const Color(0xFF111111) : const Color(0xFFF5F5F5);
+
+    return Row(
+      children: [
+        // ── Main Workspace ───────────────────────────────────────────────
+        Expanded(
+          child: Column(
+            children: [
+              _buildTopBar(textColor, borderColor, showExport: false),
+              Expanded(
+                child: Center(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
+                    padding: const EdgeInsets.all(64),
+                    child: AspectRatio(
+                      aspectRatio: _cols / _rows,
+                      child: _buildGridCanvas(borderColor),
                     ),
                   ),
-                ],
+                ),
               ),
+              _buildBottomRibbon(surfaceColor, borderColor, textColor),
+            ],
+          ),
+        ),
+
+        // ── Studio Sidebar ───────────────────────────────────────────────
+        Container(
+          width: 320,
+          decoration: BoxDecoration(
+            color: cardBg,
+            border: Border(left: BorderSide(color: borderColor)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+                child: Text(
+                  'Inspector.',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: textColor,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ),
+              
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSidebarSection('GRID SETTINGS', Column(
+                        children: [
+                          _buildSidebarSlider('Rows', _rows, (v) => _onGridSizeChange(v.round(), _cols), textColor),
+                          const SizedBox(height: 16),
+                          _buildSidebarSlider('Columns', _cols, (v) => _onGridSizeChange(_rows, v.round()), textColor),
+                        ],
+                      ), textColor),
+                      
+                      const SizedBox(height: 32),
+                      
+                      _buildSidebarSection('ACTIVE COLOR', SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            for (final c in [
+                              Theme.of(context).colorScheme.primary,
+                              const Color(0xFF42A5F5),
+                              const Color(0xFF66BB6A),
+                              const Color(0xFFFFA726),
+                              const Color(0xFFAB47BC),
+                              const Color(0xFFEF5350),
+                              const Color(0xFF8D6E63),
+                            ])
+                              Padding(
+                                padding: const EdgeInsets.only(right: 10),
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _activeColor = c),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    width: 28,
+                                    height: 28,
+                                    decoration: BoxDecoration(
+                                      color: c,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: _activeColor == c ? textColor : Colors.transparent,
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ), textColor),
+                      
+                      const SizedBox(height: 32),
+                      
+                      _buildSidebarSection('ACTIONS', Column(
+                        children: [
+                          _buildSidebarActionButton(
+                            icon: Icons.add_rounded,
+                            label: 'Add New Frame',
+                            onTap: _addFrame,
+                            color: _activeColor,
+                          ),
+                          _buildSidebarActionButton(
+                            icon: Icons.copy_all_rounded,
+                            label: 'Duplicate Frame',
+                            onTap: _duplicateFrame,
+                            color: textColor,
+                          ),
+                          _buildSidebarActionButton(
+                            icon: Icons.delete_outline_rounded,
+                            label: 'Delete Frame',
+                            onTap: _frames.length > 1 ? _deleteFrame : null,
+                            color: Colors.redAccent,
+                          ),
+                          _buildSidebarActionButton(
+                            icon: Icons.refresh_rounded,
+                            label: 'Reset Entire Sequence',
+                            onTap: _resetSequence,
+                            color: Colors.orangeAccent,
+                          ),
+                        ],
+                      ), textColor),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Export at the bottom of sidebar
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: SidebarExportButton(
+                  copied: _copied,
+                  activeColor: _activeColor,
+                  onTap: _copyCode,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSidebarSection(String title, Widget content, Color textColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+            color: textColor.withValues(alpha: 0.4),
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(height: 16),
+        content,
+      ],
+    );
+  }
+
+  Widget _buildSidebarSlider(String label, int value, ValueChanged<double> onChanged, Color textColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: TextStyle(fontSize: 12, color: textColor)),
+            Text('$value', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: textColor)),
+          ],
+        ),
+        SliderTheme(
+          data: SliderThemeData(
+            trackHeight: 2,
+            activeTrackColor: _activeColor,
+            inactiveTrackColor: textColor.withValues(alpha: 0.1),
+            overlayShape: SliderComponentShape.noOverlay,
+          ),
+          child: Slider(
+            value: value.toDouble(),
+            min: 3,
+            max: 5,
+            divisions: 2,
+            onChanged: onChanged,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSidebarActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback? onTap,
+    required Color color,
+  }) {
+    final isDisabled = onTap == null;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: color.withValues(alpha: 0.1)),
+              borderRadius: BorderRadius.circular(12),
             ),
-            
-            // Live Preview
-            Container(
-              height: 120,
-              width: double.infinity,
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              decoration: BoxDecoration(
-                color: surfaceColor,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: borderColor),
+            child: Row(
+              children: [
+                Icon(icon, size: 20, color: isDisabled ? color.withValues(alpha: 0.2) : color),
+                const SizedBox(width: 12),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDisabled ? color.withValues(alpha: 0.2) : color,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopBar(Color textColor, Color borderColor, {bool showExport = true}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: borderColor)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Sequence Builder.',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: textColor,
+                  letterSpacing: -0.5,
+                ),
               ),
-              child: Center(
-                child: DotMatrixLoader(
-                  preset: SequenceAnimation(frames: _frames),
-                  style: DotMatrixStyle(
-                    rows: _rows,
-                    columns: _cols,
-                    activeColor: _activeColor,
-                    inactiveColor: widget.isDark ? const Color(0xFF242424) : const Color(0xFFE5E5E5),
-                    dotRadius: 8,
-                    dotGap: 4,
+              Text(
+                'FRAME ${_currentIndex + 1} OF ${_frames.length}',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: textColor.withValues(alpha: 0.4),
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
+          ),
+          
+          // Compact Export Button
+          if (showExport)
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: _copyCode,
+                borderRadius: BorderRadius.circular(12),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: _copied ? Colors.green : _activeColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: _copied ? Colors.green : _activeColor.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        _copied ? Icons.check_rounded : Icons.code_rounded,
+                        size: 16,
+                        color: _copied ? Colors.white : _activeColor,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _copied ? 'COPIED' : 'EXPORT',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
+                          color: _copied ? Colors.white : _activeColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-            
-            const SizedBox(height: 24),
-            
-            // Grid Canvas
-            Expanded(
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: _cols / _rows,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 24),
-                    child: GridView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: _cols,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomRibbon(Color surfaceColor, Color borderColor, Color textColor) {
+    return Container(
+      height: 100, // Slightly taller for better thumbnail visibility
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        border: Border(top: BorderSide(color: borderColor)),
+      ),
+      child: Row(
+        children: [
+          // Live Preview Slot (Larger)
+          _buildLivePreviewSlot(borderColor),
+          
+          // Timeline (Scrollable)
+          Expanded(
+            child: ReorderableListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: _frames.length,
+              onReorder: (oldIndex, newIndex) {
+                HapticFeedback.lightImpact();
+                setState(() {
+                  if (newIndex > oldIndex) newIndex -= 1;
+                  final item = _frames.removeAt(oldIndex);
+                  _frames.insert(newIndex, item);
+                  if (_currentIndex == oldIndex) {
+                    _currentIndex = newIndex;
+                  } else if (_currentIndex > oldIndex && _currentIndex <= newIndex) {
+                    _currentIndex--;
+                  } else if (_currentIndex < oldIndex && _currentIndex >= newIndex) {
+                    _currentIndex++;
+                  }
+                });
+              },
+              itemBuilder: (context, index) {
+                final isSelected = index == _currentIndex;
+                return GestureDetector(
+                  key: ValueKey(_frames[index]),
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() => _currentIndex = index);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 72, // Larger thumbnails
+                    margin: const EdgeInsets.only(right: 12),
+                    decoration: BoxDecoration(
+                      color: isSelected 
+                          ? _activeColor.withValues(alpha: 0.1)
+                          : Colors.transparent,
+                      border: Border.all(
+                        color: isSelected ? _activeColor : borderColor,
+                        width: isSelected ? 2 : 1,
                       ),
-                      itemCount: _rows * _cols,
-                      itemBuilder: (context, index) {
-                        final r = index ~/ _cols;
-                        final c = index % _cols;
-                        final isActive = _frames[_currentIndex][r][c];
-                        return GestureDetector(
-                          onTap: () => _toggleDot(r, c),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            decoration: BoxDecoration(
-                              color: isActive 
-                                  ? _activeColor 
-                                  : (widget.isDark ? const Color(0xFF1C1C1C) : const Color(0xFFE5E5E5)),
-                              shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CustomPaint(
+                          size: const Size(44, 44), // Larger mini-matrix
+                          painter: _MiniFramePainter(
+                            frame: _frames[index],
+                            rows: _rows,
+                            cols: _cols,
+                            activeColor: _activeColor,
+                            inactiveColor: widget.isDark ? const Color(0xFF333333) : const Color(0xFFCCCCCC),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 4,
+                          right: 6,
+                          child: Text(
+                            '${index + 1}',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                              color: isSelected ? _activeColor : textColor.withValues(alpha: 0.3),
                             ),
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
                   ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLivePreviewSlot(Color borderColor) {
+    return Container(
+      width: 100, // Wider for better visibility
+      height: double.infinity,
+      margin: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: _activeColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _activeColor.withValues(alpha: 0.25), width: 1.5),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Transform.scale(
+            scale: 0.55, // Significantly larger preview
+            child: DotMatrixLoader(
+              preset: SequenceAnimation(frames: _frames),
+              style: DotMatrixStyle(
+                rows: _rows,
+                columns: _cols,
+                activeColor: _activeColor,
+                inactiveColor: widget.isDark ? const Color(0xFF242424) : const Color(0xFFE5E5E5),
+                dotRadius: 6,
+                dotGap: 4,
+              ),
+            ),
+          ),
+          Positioned(
+            top: 6,
+            left: 8,
+            child: Icon(Icons.play_circle_filled_rounded, size: 14, color: _activeColor),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGridCanvas(Color borderColor) {
+    return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: _cols,
+        crossAxisSpacing: 10, // Tighter spacing for a technical look
+        mainAxisSpacing: 10,
+      ),
+      itemCount: _rows * _cols,
+      itemBuilder: (context, index) {
+        final r = index ~/ _cols;
+        final c = index % _cols;
+        final isActive = _frames[_currentIndex][r][c];
+        
+        return GestureDetector(
+          onTap: () => _toggleDot(r, c),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            decoration: BoxDecoration(
+              color: isActive 
+                  ? _activeColor 
+                  : (widget.isDark ? const Color(0xFF141414) : const Color(0xFFE5E5E5)),
+              shape: BoxShape.circle,
+              boxShadow: isActive ? [
+                BoxShadow(
+                  color: _activeColor.withValues(alpha: 0.4),
+                  blurRadius: 15,
+                  spreadRadius: 1,
+                )
+              ] : null,
+              border: Border.all(
+                color: isActive 
+                    ? _activeColor.withValues(alpha: 0.6)
+                    : (widget.isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05)),
+                width: 1.5,
+              ),
+            ),
+            child: isActive ? Center(
+              child: Container(
+                width: 4,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  shape: BoxShape.circle,
                 ),
               ),
-            ),
-            
-            // Grid Size Settings
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'ROWS: $_rows',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            color: textColor.withValues(alpha: 0.4),
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                        SliderTheme(
-                          data: SliderThemeData(
-                            trackHeight: 2,
-                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                            activeTrackColor: _activeColor,
-                            inactiveTrackColor: surfaceColor,
-                            overlayShape: SliderComponentShape.noOverlay,
-                          ),
-                          child: Slider(
-                            value: _rows.toDouble(),
-                            min: 3,
-                            max: 5,
-                            divisions: 2,
-                            onChanged: (v) => _onGridSizeChange(v.round(), _cols),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 24),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'COLS: $_cols',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            color: textColor.withValues(alpha: 0.4),
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                        SliderTheme(
-                          data: SliderThemeData(
-                            trackHeight: 2,
-                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                            activeTrackColor: _activeColor,
-                            inactiveTrackColor: surfaceColor,
-                            overlayShape: SliderComponentShape.noOverlay,
-                          ),
-                          child: Slider(
-                            value: _cols.toDouble(),
-                            min: 3,
-                            max: 5,
-                            divisions: 2,
-                            onChanged: (v) => _onGridSizeChange(_rows, v.round()),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ) : null,
+          ),
+        );
+      },
+    );
+  }
 
-            // Controls
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(
-                    child: _ControlButton(
-                      icon: Icons.delete_outline,
-                      label: 'Delete',
-                      onTap: _frames.length > 1 ? _deleteFrame : null,
-                      color: Colors.redAccent,
-                    ),
-                  ),
-                  Expanded(
-                    child: _ControlButton(
-                      icon: Icons.copy,
-                      label: 'Duplicate',
-                      onTap: _duplicateFrame,
-                      color: textColor,
-                    ),
-                  ),
-                  Expanded(
-                    child: _ControlButton(
-                      icon: Icons.add,
-                      label: 'Add',
-                      onTap: _addFrame,
-                      color: _activeColor,
-                    ),
-                  ),
-                  Expanded(
-                    child: _ControlButton(
-                      icon: Icons.restart_alt_rounded,
-                      label: 'Reset',
-                      onTap: _resetSequence,
-                      color: Colors.orangeAccent,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Timeline and Color Picker
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                color: surfaceColor,
-                border: Border(top: BorderSide(color: borderColor)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Color Picker
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+  Widget _buildStudioToolbar(Color surfaceColor, Color borderColor, Color textColor) {
+    final isDark = widget.isDark;
+    final cardBg = isDark ? const Color(0xFF111111) : const Color(0xFFF5F5F5);
+    final shadowColor = isDark ? Colors.black.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.1);
+    
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cardBg.withValues(alpha: 0.92), // Matched base color with glass effect
+        borderRadius: BorderRadius.circular(20), // Matched Showcase radius
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: shadowColor,
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Size Sliders
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: Row(
+              children: [
+                _buildCompactSlider('R', _rows, (v) => _onGridSizeChange(v.round(), _cols), textColor),
+                const SizedBox(width: 16),
+                _buildCompactSlider('C', _cols, (v) => _onGridSizeChange(_rows, v.round()), textColor),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Row(
                       children: [
                         for (final c in [
@@ -438,189 +826,128 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                           const Color(0xFF66BB6A),
                           const Color(0xFFFFA726),
                           const Color(0xFFAB47BC),
+                          const Color(0xFFEF5350),
+                          const Color(0xFF8D6E63),
                         ])
                           Padding(
-                            padding: const EdgeInsets.only(right: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: GestureDetector(
                               onTap: () {
                                 HapticFeedback.selectionClick();
                                 setState(() => _activeColor = c);
                               },
                               child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 180),
-                                width: 24,
-                                height: 24,
+                                duration: const Duration(milliseconds: 200),
+                                width: 22,
+                                height: 22,
                                 decoration: BoxDecoration(
                                   color: c,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: _activeColor == c
-                                        ? textColor
-                                        : Colors.transparent,
+                                    color: _activeColor == c ? textColor : Colors.transparent,
                                     width: 2,
                                   ),
-                                  boxShadow: _activeColor == c
-                                      ? [
-                                          BoxShadow(
-                                            color: c.withValues(alpha: 0.5),
-                                            blurRadius: 8,
-                                          ),
-                                        ]
-                                      : null,
                                 ),
                               ),
                             ),
                           ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Timeline
-                  SizedBox(
-                    height: 60,
-                    child: ReorderableListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      itemCount: _frames.length,
-                      onReorder: (oldIndex, newIndex) {
-                        HapticFeedback.lightImpact();
-                        setState(() {
-                          if (newIndex > oldIndex) {
-                            newIndex -= 1;
-                          }
-                          final item = _frames.removeAt(oldIndex);
-                          _frames.insert(newIndex, item);
-                          
-                          if (_currentIndex == oldIndex) {
-                            _currentIndex = newIndex;
-                          } else if (_currentIndex > oldIndex && _currentIndex <= newIndex) {
-                            _currentIndex--;
-                          } else if (_currentIndex < oldIndex && _currentIndex >= newIndex) {
-                            _currentIndex++;
-                          }
-                        });
-                      },
-                      itemBuilder: (context, index) {
-                        final isSelected = index == _currentIndex;
-                        // Unique key based on the object reference so ReorderableListView tracks it correctly
-                        return GestureDetector(
-                          key: ValueKey(_frames[index]),
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            setState(() => _currentIndex = index);
-                          },
-                          child: Container(
-                            width: 60,
-                            margin: const EdgeInsets.only(right: 12),
-                            decoration: BoxDecoration(
-                              color: isSelected 
-                                  ? (widget.isDark ? const Color(0xFF2A2A2A) : const Color(0xFFF0F0F0))
-                                  : Colors.transparent,
-                              border: Border.all(
-                                color: isSelected ? _activeColor : borderColor,
-                                width: isSelected ? 2 : 1,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                CustomPaint(
-                                  size: const Size(40, 40),
-                                  painter: _MiniFramePainter(
-                                    frame: _frames[index],
-                                    rows: _rows,
-                                    cols: _cols,
-                                    activeColor: _activeColor,
-                                    inactiveColor: widget.isDark ? const Color(0xFF333333) : const Color(0xFFCCCCCC),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 4,
-                                  right: 6,
-                                  child: Text(
-                                    '${index + 1}',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: isSelected ? _activeColor : subtextColor,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Export Button at the bottom
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
-              child: GestureDetector(
-                onTap: _copyCode,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: double.infinity,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: _copied ? Colors.green : _activeColor,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (_copied ? Colors.green : _activeColor).withValues(alpha: 0.25),
-                        blurRadius: 15,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          _copied ? Icons.check_circle_outline_rounded : Icons.code_rounded,
-                          color: _copied
-                              ? Colors.white
-                              : (_activeColor.computeLuminance() > 0.5
-                                  ? Colors.black
-                                  : Colors.white),
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          _copied ? 'COPIED TO CLIPBOARD' : 'EXPORT ANIMATION CODE',
-                          style: TextStyle(
-                          color: _copied
-                              ? Colors.white
-                              : (_activeColor.computeLuminance() > 0.5
-                                  ? Colors.black
-                                  : Colors.white),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
                       ],
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+          
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Divider(height: 1, indent: 12, endIndent: 12),
+          ),
+          
+          // Action Buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _StudioActionButton(
+                icon: Icons.delete_outline_rounded,
+                label: 'Delete',
+                onTap: _frames.length > 1 ? _deleteFrame : null,
+                color: Colors.redAccent,
+              ),
+              _StudioActionButton(
+                icon: Icons.copy_all_rounded,
+                label: 'Duplicate',
+                onTap: _duplicateFrame,
+                color: textColor,
+              ),
+              _StudioActionButton(
+                icon: Icons.add_rounded,
+                label: 'Add Frame',
+                onTap: _addFrame,
+                color: _activeColor,
+              ),
+              _StudioActionButton(
+                icon: Icons.refresh_rounded,
+                label: 'Reset',
+                onTap: _resetSequence,
+                color: Colors.orangeAccent,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
+
+  Widget _buildCompactSlider(String label, int value, ValueChanged<double> onChanged, Color textColor) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+            color: textColor.withValues(alpha: 0.4),
+          ),
+        ),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 60,
+          child: SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 2,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
+              activeTrackColor: _activeColor,
+              inactiveTrackColor: textColor.withValues(alpha: 0.1),
+              overlayShape: SliderComponentShape.noOverlay,
+            ),
+            child: Slider(
+              value: value.toDouble(),
+              min: 3,
+              max: 5,
+              divisions: 2,
+              onChanged: onChanged,
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          '$value',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: textColor,
+          ),
+        ),
+      ],
+    );
+  }
+
 }
 
-class _ControlButton extends StatelessWidget {
-  const _ControlButton({
+class _StudioActionButton extends StatefulWidget {
+  const _StudioActionButton({
     required this.icon,
     required this.label,
     required this.onTap,
@@ -633,25 +960,47 @@ class _ControlButton extends StatelessWidget {
   final Color color;
 
   @override
+  State<_StudioActionButton> createState() => _StudioActionButtonState();
+}
+
+class _StudioActionButtonState extends State<_StudioActionButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          children: [
-            Icon(icon, color: onTap == null ? color.withValues(alpha: 0.3) : color),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: onTap == null ? color.withValues(alpha: 0.3) : color,
-                fontWeight: FontWeight.w500,
+    final isDisabled = widget.onTap == null;
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _pressed && !isDisabled ? 0.94 : 1.0,
+        duration: const Duration(milliseconds: 160), // Matched Showcase timing
+        curve: Curves.easeOutCubic,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          color: Colors.transparent,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                widget.icon, 
+                size: 20,
+                color: isDisabled ? widget.color.withValues(alpha: 0.2) : widget.color,
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                widget.label,
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  color: isDisabled ? widget.color.withValues(alpha: 0.2) : widget.color,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -677,7 +1026,7 @@ class _MiniFramePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final cellW = size.width / cols;
     final cellH = size.height / rows;
-    final radius = math.min(cellW, cellH) / 2 * 0.8;
+    final radius = math.min(cellW, cellH) / 2 * 0.7;
     
     final activePaint = Paint()..color = activeColor;
     final inactivePaint = Paint()..color = inactiveColor;
@@ -694,3 +1043,5 @@ class _MiniFramePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _MiniFramePainter oldDelegate) => true;
 }
+
+

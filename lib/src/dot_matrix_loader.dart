@@ -190,7 +190,7 @@ class _DotMatrixLoaderState extends State<DotMatrixLoader>
 
     final core = RepaintBoundary(
       child: AspectRatio(
-        aspectRatio: style.columns / style.rows,
+        aspectRatio: style.gridWidth / style.gridHeight,
         child: AnimatedBuilder(
           animation: _animation,
           builder: (context, _) {
