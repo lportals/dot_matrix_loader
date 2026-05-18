@@ -101,6 +101,7 @@ class _ExamplesPageState extends State<ExamplesPage>
 
                   final playgroundCapsule = Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'INTERACTIVE PLAYGROUND',
@@ -383,7 +384,7 @@ class _ExamplesPageState extends State<ExamplesPage>
               'INTEGRATION USE CASES',
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 11,
+                fontSize: 10,
                 fontWeight: FontWeight.w800,
                 color: textColor.withValues(alpha: 0.4),
                 letterSpacing: 1.0,
@@ -566,9 +567,13 @@ class _ExamplesPageState extends State<ExamplesPage>
                                         rows: item.rows,
                                         dotRadius: 1.5,
                                         dotGap: 2.2,
-                                        activeColor: isCurrentSelected ? activeColor : textColor,
-                                        inactiveColor: textColor.withValues(alpha: 0.05),
-                                        dotShape: DotShape.circle,
+                                        activeColor: isCurrentSelected 
+                                            ? activeColor 
+                                            : activeColor.withValues(alpha: 0.2),
+                                        inactiveColor: isCurrentSelected
+                                            ? activeColor.withValues(alpha: 0.08)
+                                            : textColor.withValues(alpha: 0.05),
+                                        dotShape: _viewModel.activeShape,
                                       ),
                                       externalAnimation: _sharedController,
                                     ),
