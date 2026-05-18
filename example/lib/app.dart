@@ -3,6 +3,7 @@ import 'package:dot_matrix_loader/dot_matrix_loader.dart';
 import 'pages/showcase_page.dart';
 import 'pages/builder_page.dart';
 import 'pages/sequence_builder_page.dart';
+import 'pages/examples_page.dart';
 import 'studio_provider.dart';
 
 /// Root application widget with a theme toggle (dark / light).
@@ -121,6 +122,11 @@ class _RootShellState extends State<_RootShell> {
                       isDark: studio.isDark,
                       onToggleTheme: studio.onToggleTheme,
                     ),
+                    ExamplesPage(
+                      key: const ValueKey('root_examples_page'),
+                      isDark: studio.isDark,
+                      onToggleTheme: studio.onToggleTheme,
+                    ),
                   ],
                 ),
               ),
@@ -179,6 +185,13 @@ class _SidebarRail extends StatelessWidget {
             icon: Icons.auto_awesome_motion_rounded,
             active: currentIndex == 1,
             onTap: () => onTap(1),
+          ),
+          const SizedBox(height: 16),
+          _RailTab(
+            label: 'Examples',
+            icon: Icons.widgets_rounded,
+            active: currentIndex == 2,
+            onTap: () => onTap(2),
           ),
           const Spacer(),
           Padding(
@@ -295,6 +308,12 @@ class _BottomBar extends StatelessWidget {
               icon: Icons.view_carousel_rounded,
               active: currentIndex == 1,
               onTap: () => onTap(1),
+            ),
+            _Tab(
+              label: 'Examples',
+              icon: Icons.widgets_rounded,
+              active: currentIndex == 2,
+              onTap: () => onTap(2),
             ),
           ],
         ),

@@ -1,30 +1,19 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:dot_matrix_loader_example/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('Dot Matrix App Navigation Smoke Test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const DotMatrixApp());
+    // Pump frames for a short duration to let the widgets render, 
+    // avoiding pumpAndSettle since we have infinite repeat animations.
+    await tester.pump(const Duration(milliseconds: 500));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify Showcase and Sequence tabs exist in the layout
+    expect(find.text('Showcase'), findsWidgets);
+    expect(find.text('Sequence'), findsWidgets);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify our newly added Examples tab is rendered successfully
+    expect(find.text('Examples'), findsWidgets);
   });
 }

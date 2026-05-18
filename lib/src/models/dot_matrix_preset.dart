@@ -170,7 +170,10 @@ DotState _orbit(int row, int col, int rows, int cols, double t) {
   final dx = col - (cols-1)/2.0; final dy = row - (rows-1)/2.0;
   final dist = math.sqrt(dx*dx + dy*dy);
   final angle = math.atan2(dy, dx);
-  final v = ((math.cos(angle - t * 2 * math.pi * (1 + dist * 0.3)) * 2 + 1) / 2).clamp(0.0, 1.0);
+  // To ensure the animation is mathematically continuous when it loops from t = 1.0 back to 0.0,
+  // the frequency multiplier of t must be an integer. Moving the distance factor to the phase offset 
+  // (outside of the t term) creates a gorgeous, perfectly seamless spiraling orbit loop without stutters.
+  final v = ((math.cos(angle - t * 2 * math.pi - dist * 0.6) * 2 + 1) / 2).clamp(0.0, 1.0);
   return DotState(opacity: v, scale: 0.3 + 0.7 * v);
 }
 
