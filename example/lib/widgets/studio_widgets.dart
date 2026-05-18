@@ -250,6 +250,8 @@ class _StudioIconButtonState extends State<StudioIconButton> {
   @override
   Widget build(BuildContext context) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
+    final provider = context.dependOnInheritedWidgetOfExactType<StudioProvider>();
+    final isCircle = provider?.shape != DotShape.roundedSquare;
 
     Widget button = GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
@@ -275,7 +277,9 @@ class _StudioIconButtonState extends State<StudioIconButton> {
               height: widget.size,
               decoration: BoxDecoration(
                 color: onSurface.withValues(alpha: 0.07),
-                shape: BoxShape.circle,
+                borderRadius: isCircle 
+                    ? BorderRadius.circular(widget.size / 2) 
+                    : BorderRadius.circular(4),
               ),
               alignment: Alignment.center,
               child: Icon(

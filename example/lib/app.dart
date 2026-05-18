@@ -188,7 +188,7 @@ class _SidebarRail extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _RailTab(
-            label: 'Examples',
+            label: 'Playground',
             icon: Icons.widgets_rounded,
             active: currentIndex == 2,
             onTap: () => onTap(2),
@@ -310,7 +310,7 @@ class _BottomBar extends StatelessWidget {
               onTap: () => onTap(1),
             ),
             _Tab(
-              label: 'Examples',
+              label: 'Playground',
               icon: Icons.widgets_rounded,
               active: currentIndex == 2,
               onTap: () => onTap(2),

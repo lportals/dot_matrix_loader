@@ -77,7 +77,7 @@ class DotMatrixPainter extends CustomPainter {
             height: currentRadius * 2,
           );
           canvas.drawRRect(
-            RRect.fromRectAndRadius(rect, Radius.circular(currentRadius * 0.35)),
+            RRect.fromRectAndRadius(rect, Radius.circular(currentRadius * 0.18)),
             paint,
           );
         }

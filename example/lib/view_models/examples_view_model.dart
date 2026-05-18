@@ -97,6 +97,14 @@ class ExamplesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Programmatic shape override synchronized with the studio.
+  void updateShape(DotShape shape) {
+    if (_activeShape != shape) {
+      _activeShape = shape;
+      notifyListeners();
+    }
+  }
+
   /// Updates the active search query.
   void updateSearchQuery(String query) {
     _searchQuery = query;

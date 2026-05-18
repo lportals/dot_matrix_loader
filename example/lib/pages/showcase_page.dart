@@ -481,7 +481,9 @@ class _ShowcasePageState extends State<ShowcasePage>
                   height: 36,
                   decoration: BoxDecoration(
                     color: onSurface.withValues(alpha: 0.07),
-                    shape: BoxShape.circle,
+                    borderRadius: StudioProvider.of(context).shape == DotShape.circle
+                        ? BorderRadius.circular(18)
+                        : BorderRadius.circular(4),
                   ),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),

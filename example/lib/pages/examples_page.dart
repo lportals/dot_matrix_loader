@@ -43,6 +43,10 @@ class _ExamplesPageState extends State<ExamplesPage>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _viewModel.updateDefaultColor(Theme.of(context).colorScheme.primary);
+    final globalShape = StudioProvider.of(context).shape;
+    if (_viewModel.activeShape != globalShape) {
+      _viewModel.updateShape(globalShape);
+    }
   }
 
   @override
@@ -72,7 +76,10 @@ class _ExamplesPageState extends State<ExamplesPage>
         initialGap: _viewModel.activeGap,
         initialShape: _viewModel.activeShape,
         initialColor: activeColor,
-        onChanged: (data) => _viewModel.updateConfig(data),
+        onChanged: (data) {
+          _viewModel.updateConfig(data);
+          StudioProvider.of(context).onShapeChanged(data.shape);
+        },
       ),
     );
   }
@@ -123,7 +130,9 @@ class _ExamplesPageState extends State<ExamplesPage>
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
                             color: activeColor.withValues(alpha: 0.06),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: _viewModel.activeShape == DotShape.circle 
+                                ? BorderRadius.circular(20) 
+                                : BorderRadius.circular(4),
                             border: Border.all(color: activeColor.withValues(alpha: 0.15)),
                           ),
                           child: Row(
@@ -232,7 +241,9 @@ class _ExamplesPageState extends State<ExamplesPage>
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
                               color: surfaceColor,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: _viewModel.activeShape == DotShape.circle 
+                                  ? BorderRadius.circular(16) 
+                                  : BorderRadius.circular(4),
                               border: Border.all(color: borderColor),
                             ),
                             child: _buildCodeInspector(
@@ -408,7 +419,9 @@ class _ExamplesPageState extends State<ExamplesPage>
           height: 44,
           decoration: BoxDecoration(
             color: surfaceColor,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: _viewModel.activeShape == DotShape.circle 
+                ? BorderRadius.circular(20) 
+                : BorderRadius.circular(4),
             border: Border.all(color: borderColor),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -458,7 +471,9 @@ class _ExamplesPageState extends State<ExamplesPage>
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: isSel ? activeColor : surfaceColor,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: _viewModel.activeShape == DotShape.circle 
+                          ? BorderRadius.circular(20) 
+                          : BorderRadius.circular(4),
                       border: Border.all(color: isSel ? Colors.transparent : borderColor),
                     ),
                     child: Center(
@@ -540,7 +555,9 @@ class _ExamplesPageState extends State<ExamplesPage>
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: isCurrentSelected ? activeColor.withValues(alpha: 0.05) : surfaceColor,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: _viewModel.activeShape == DotShape.circle 
+                                ? BorderRadius.circular(16) 
+                                : BorderRadius.circular(4),
                             border: Border.all(
                               color: isCurrentSelected ? activeColor.withValues(alpha: 0.5) : borderColor,
                               width: isCurrentSelected ? 1.5 : 1.0,
@@ -557,7 +574,9 @@ class _ExamplesPageState extends State<ExamplesPage>
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       color: textColor.withValues(alpha: 0.04),
-                                      borderRadius: BorderRadius.circular(8),
+                                      borderRadius: _viewModel.activeShape == DotShape.circle 
+                                          ? BorderRadius.circular(8) 
+                                          : BorderRadius.circular(2.5),
                                     ),
                                     child: DotMatrixLoader(
                                       key: ValueKey('grid_loader_${item.name}'),
@@ -569,7 +588,7 @@ class _ExamplesPageState extends State<ExamplesPage>
                                         dotGap: 2.2,
                                         activeColor: isCurrentSelected 
                                             ? activeColor 
-                                            : activeColor.withValues(alpha: 0.2),
+                                            : activeColor.withValues(alpha: 0.5),
                                         inactiveColor: isCurrentSelected
                                             ? activeColor.withValues(alpha: 0.08)
                                             : textColor.withValues(alpha: 0.05),
@@ -728,7 +747,9 @@ class _ExamplesPageState extends State<ExamplesPage>
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: widget.isDark ? Colors.black.withValues(alpha: 0.5) : const Color(0xFFF6F8FA),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: _viewModel.activeShape == DotShape.circle 
+                ? BorderRadius.circular(10) 
+                : BorderRadius.circular(4),
             border: Border.all(color: borderColor),
           ),
           child: Text(
@@ -822,7 +843,9 @@ class _StatusPillButtonState extends State<_StatusPillButton> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(30), // Capsule pill shape
+            borderRadius: resolvedShape == DotShape.circle 
+                ? BorderRadius.circular(30) 
+                : BorderRadius.circular(8),
           ),
           child: Row(
             children: [
