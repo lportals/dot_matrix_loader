@@ -404,26 +404,12 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                       border: Border.all(color: borderColor),
                     ),
                     child: _isLivePreview
-                        ? Center(
-                            child: SizedBox(
-                              width: 140,
-                              height: 140,
-                              child: DotMatrixLoader(
-                                key: const ValueKey('sequence_playback_loader_inline'),
-                                preset: SequenceAnimation(frames: _viewModel.frames),
-                                style: DotMatrixStyle(
-                                  rows: _viewModel.rows,
-                                  columns: _viewModel.cols,
-                                  activeColor: _viewModel.activeColor,
-                                  inactiveColor: widget.isDark 
-                                      ? const Color(0xFF1C1C1C) 
-                                      : const Color(0xFFDDDDDD),
-                                  dotRadius: 4.5,
-                                  dotGap: 8.0,
-                                  dotShape: StudioProvider.of(context).shape,
-                                ),
-                              ),
-                            ),
+                        ? _buildLivePreview(
+                            onSurface: onSurface,
+                            loaderSize: 140,
+                            dotRadius: 4.5,
+                            dotGap: 8.0,
+                            viewKey: 'sequence_playback_loader_inline',
                           )
                         : _buildPixelCanvasGrid(currentFrame, onSurface),
                   ),
@@ -622,26 +608,12 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                         ],
                       ),
                       child: _isLivePreview
-                          ? Center(
-                              child: SizedBox(
-                                width: 180,
-                                height: 180,
-                                child: DotMatrixLoader(
-                                  key: const ValueKey('sequence_playback_loader_desktop'),
-                                  preset: SequenceAnimation(frames: _viewModel.frames),
-                                  style: DotMatrixStyle(
-                                    rows: _viewModel.rows,
-                                    columns: _viewModel.cols,
-                                    activeColor: _viewModel.activeColor,
-                                    inactiveColor: widget.isDark 
-                                        ? const Color(0xFF1C1C1C) 
-                                        : const Color(0xFFDDDDDD),
-                                    dotRadius: 6.0,
-                                    dotGap: 10.0,
-                                    dotShape: StudioProvider.of(context).shape,
-                                  ),
-                                ),
-                              ),
+                          ? _buildLivePreview(
+                              onSurface: onSurface,
+                              loaderSize: 180,
+                              dotRadius: 6.0,
+                              dotGap: 10.0,
+                              viewKey: 'sequence_playback_loader_desktop',
                             )
                           : _buildPixelCanvasGrid(currentFrame, onSurface),
                     ),
@@ -751,6 +723,91 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLivePreview({
+    required Color onSurface,
+    required double loaderSize,
+    required double dotRadius,
+    required double dotGap,
+    required String viewKey,
+  }) {
+    final bool isEmpty = _viewModel.frames.isEmpty || 
+        _viewModel.frames.every((frame) => frame.every((row) => !row.contains(true)));
+
+    if (isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: _viewModel.activeColor.withValues(alpha: 0.04),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: _viewModel.activeColor.withValues(alpha: 0.15),
+                    width: 1.5,
+                  ),
+                ),
+                child: Icon(
+                  Icons.blur_on_rounded,
+                  size: 24,
+                  color: _viewModel.activeColor.withValues(alpha: 0.45),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Empty Sequence Canvas',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: onSurface,
+                  letterSpacing: -0.3,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Switch to DESIGN mode and select active dots on the pixel grid to start playback.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 11,
+                  color: onSurface.withValues(alpha: 0.45),
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Center(
+      child: SizedBox(
+        width: loaderSize,
+        height: loaderSize,
+        child: DotMatrixLoader(
+          key: ValueKey(viewKey),
+          preset: SequenceAnimation(frames: _viewModel.frames),
+          style: DotMatrixStyle(
+            rows: _viewModel.rows,
+            columns: _viewModel.cols,
+            activeColor: _viewModel.activeColor,
+            inactiveColor: widget.isDark 
+                ? const Color(0xFF1C1C1C) 
+                : const Color(0xFFDDDDDD),
+            dotRadius: dotRadius,
+            dotGap: dotGap,
+            dotShape: StudioProvider.of(context).shape,
+          ),
+        ),
+      ),
     );
   }
 
