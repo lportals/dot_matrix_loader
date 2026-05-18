@@ -1097,7 +1097,7 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
               ),
               const SizedBox(height: 12),
               SizedBox(
-                height: 36,
+                height: 32,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: colors.length,
@@ -1112,18 +1112,21 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
                           setState(() => _selectedColor = color);
                           _notifyChange();
                         },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: color,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isSel
-                                  ? (widget.isDark ? Colors.white : Colors.black)
-                                  : Colors.transparent,
-                              width: 2,
+                        child: Center(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.circular(_shape == DotShape.circle ? 16 : 8),
+                              border: Border.all(
+                                color: isSel
+                                    ? (widget.isDark ? Colors.white : Colors.black)
+                                    : Colors.transparent,
+                                width: 2,
+                              ),
                             ),
                           ),
                         ),
@@ -1311,18 +1314,33 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: active ? Colors.transparent : borderColor),
         ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
-              color: active
-                  ? (Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white)
-                  : textColor.withValues(alpha: 0.6),
-              letterSpacing: 0.5,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: active
+                    ? (widget.isDark ? Colors.black : Colors.white)
+                    : textColor.withValues(alpha: 0.6),
+                shape: shape == DotShape.circle ? BoxShape.circle : BoxShape.rectangle,
+                borderRadius: shape == DotShape.roundedSquare ? BorderRadius.circular(2.5) : null,
+              ),
             ),
-          ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: active
+                    ? (widget.isDark ? Colors.black : Colors.white)
+                    : textColor.withValues(alpha: 0.6),
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
         ),
       ),
     );
