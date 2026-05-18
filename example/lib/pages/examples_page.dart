@@ -800,7 +800,7 @@ class _StatusPillButtonState extends State<_StatusPillButton> {
     final resolvedCols = widget.colsOverride ?? 3;
 
     final textColor = widget.isSelected
-        ? (widget.isDark ? Colors.white : Colors.black)
+        ? activeColor
         : (widget.isDark ? Colors.white.withValues(alpha: 0.7) : Colors.black.withValues(alpha: 0.7));
 
     return GestureDetector(
