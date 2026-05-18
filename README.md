@@ -28,7 +28,7 @@ and a frame-by-frame sequence API — all driven by a single `AnimationControlle
 
 ```yaml
 dependencies:
-  dot_matrix_loader: ^0.1.3
+  dot_matrix_loader: ^0.1.4
 ```
 
 ---
@@ -241,6 +241,23 @@ class _MyGalleryState extends State<MyGallery>
 | `Diamond` | Ambient | Expanding diamond rings (Manhattan distance) |
 | `Checkerboard` | Ambient | An alternating grid crossfade |
 | `Breathe` | Ambient | A global ease-in-out pulse |
+
+---
+
+## Interactive Studio & Examples
+
+The package comes with a highly polished, interactive developer playground (available in the `example/` directory).
+
+Key features inside the example app:
+1. **Interactive Studio Canvas**: Real-time playground to customize active dot colors, speed, dimensions, shapes, gaps, and haptics with live code generation.
+2. **Sequence Builder**: A frame-by-frame visual canvas to draw custom 2D grid animations. Design pixel art sequences and export clean Flutter Dart code instantly. Includes automatic session persistence at runtime.
+3. **Predefined Status Showcase**: Practical, real-world examples demonstrating how to use different dot-matrix loader presets in context (e.g., system diagnostics, database operations, media processing).
+
+To run the playground locally:
+```bash
+cd example
+flutter run -d chrome
+```
 
 ---
 
