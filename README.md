@@ -1,10 +1,14 @@
 # dot_matrix_loader
 
+[![Pub Version](https://img.shields.io/pub/v/dot_matrix_loader?style=flat-square&color=blue)](https://pub.dev/packages/dot_matrix_loader)
+[![License: MIT](https://img.shields.io/badge/License-MIT-black.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Flutter](https://img.shields.io/badge/Flutter-%E2%9C%93-02569B?style=flat-square&logo=flutter)](https://flutter.dev)
+
 A zero-dependency Flutter package for premium dot-matrix loading animations.
 Render animated NxM dot grids with **36 built-in presets**, a custom builder API,
 and a frame-by-frame sequence API — all driven by a single `AnimationController`.
 
-![Dot Matrix Loader Demo](https://raw.githubusercontent.com/lportals/dot_matrix_loader/develop/doc/gifs/matrix_loader_animation.gif)
+![Dot Matrix Loader Demo](https://raw.githubusercontent.com/lportals/dot_matrix_loader/main/doc/gifs/matrix_loader_animation.gif?v=1)
 
 ---
 
@@ -24,7 +28,7 @@ and a frame-by-frame sequence API — all driven by a single `AnimationControlle
 
 ```yaml
 dependencies:
-  dot_matrix_loader: ^0.1.0
+  dot_matrix_loader: ^0.1.3
 ```
 
 ---
@@ -100,7 +104,7 @@ DotMatrixLoader(
 Define discrete frames as boolean grids (use the **Sequence Builder** in the example app
 to design them visually and export the code automatically):
 
-![Sequence Builder Demo](https://raw.githubusercontent.com/lportals/dot_matrix_loader/develop/doc/gifs/matrix_loader_animation_sequence.gif)
+![Sequence Builder Demo](https://raw.githubusercontent.com/lportals/dot_matrix_loader/main/doc/gifs/matrix_loader_animation_sequence.gif?v=1)
 
 ```dart
 DotMatrixLoader(
