@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dot_matrix_loader/dot_matrix_loader.dart';
 import '../studio_provider.dart';
+import '../widgets/studio_widgets.dart';
 import '../data/models/config_data.dart';
 import '../data/repositories/preset_repository.dart';
 import '../view_models/examples_view_model.dart';
@@ -275,54 +276,62 @@ class _ExamplesPageState extends State<ExamplesPage>
 
   /// Top Bar Header exactly matched to the design and alignment of Showcase & Sequence builders.
   Widget _buildTopBar(Color textColor, Color borderColor) {
+    final isDesktop = MediaQuery.of(context).size.width >= 600;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 28 : 20,
+        vertical: isDesktop ? 24 : 16,
+      ),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: borderColor)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Scenario Simulator',
+                  style: TextStyle(
+                    fontSize: isDesktop ? 28 : 24,
+                    fontWeight: FontWeight.w900,
+                    color: textColor,
+                    letterSpacing: isDesktop ? -1.0 : -0.8,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'REAL-WORLD SYSTEM INTEGRATION PLAYGROUND',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    color: textColor.withValues(alpha: 0.4),
+                    letterSpacing: isDesktop ? 1.2 : 1.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Scenario Simulator',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: textColor,
-                  letterSpacing: -0.5,
-                ),
+              StudioIconButton(
+                icon: widget.isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                onTap: widget.onToggleTheme,
+                tooltip: 'Toggle Theme',
               ),
-              Text(
-                'REAL-WORLD SYSTEM INTEGRATION PLAYGROUND',
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
-                  color: textColor.withValues(alpha: 0.4),
-                  letterSpacing: 1.0,
-                ),
+              const SizedBox(width: 8),
+              StudioIconButton(
+                icon: Icons.tune_rounded,
+                onTap: _showFilterBottomSheet,
+                tooltip: 'Scenario Options',
               ),
             ],
-          ),
-          GestureDetector(
-            onTap: _showFilterBottomSheet,
-            behavior: HitTestBehavior.opaque,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: textColor.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.tune_rounded,
-                size: 18,
-                color: textColor.withValues(alpha: 0.6),
-              ),
-            ),
           ),
         ],
       ),

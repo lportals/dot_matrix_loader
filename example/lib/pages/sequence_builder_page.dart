@@ -4,6 +4,7 @@ import 'package:dot_matrix_loader/dot_matrix_loader.dart';
 import '../studio_provider.dart';
 import '../widgets/studio_widgets.dart';
 import '../view_models/sequence_builder_view_model.dart';
+import '../data/models/custom_sequence.dart';
 
 /// Interactive Sequence Builder Studio enabling frame-by-frame animation timelines,
 /// canvas editing grids, sequence preview dialog sheets, and haptic code generators.
@@ -113,7 +114,39 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
     _viewModel.changeGridSize(r, c);
   }
 
+  void _onLoadTemplate(CustomSequence template) async {
+    bool hasData = _viewModel.frames.length > 1 || _viewModel.frames[0].any((row) => row.any((dot) => dot));
 
+    if (hasData) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: widget.isDark ? const Color(0xFF242424) : Colors.white,
+          title: Text(
+            'Load Preset Template?',
+            style: TextStyle(color: widget.isDark ? Colors.white : Colors.black),
+          ),
+          content: Text(
+            'Loading this template will clear your current sequence. Do you want to proceed?',
+            style: TextStyle(color: widget.isDark ? Colors.white70 : Colors.black87),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text('Cancel', style: TextStyle(color: widget.isDark ? Colors.white54 : Colors.black54)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Load & Clear', style: TextStyle(color: Colors.redAccent)),
+            ),
+          ],
+        ),
+      );
+      if (confirm != true) return;
+    }
+
+    _viewModel.loadTemplate(template);
+  }
 
   void _showSettingsBottomSheet() {
     HapticFeedback.mediumImpact();
@@ -262,16 +295,15 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                 ),
                 Row(
                   children: [
-                    IconButton(
-                      onPressed: _resetSequence,
-                      icon: const Icon(Icons.refresh_rounded, size: 20),
-                      color: onSurface.withValues(alpha: 0.6),
+                    StudioIconButton(
+                      icon: Icons.refresh_rounded,
+                      onTap: _resetSequence,
                       tooltip: 'Reset Sequence',
                     ),
-                    IconButton(
-                      onPressed: _showSettingsBottomSheet,
-                      icon: const Icon(Icons.tune_rounded, size: 20),
-                      color: onSurface.withValues(alpha: 0.6),
+                    const SizedBox(width: 8),
+                    StudioIconButton(
+                      icon: Icons.tune_rounded,
+                      onTap: _showSettingsBottomSheet,
                       tooltip: 'Sequence Options',
                     ),
                   ],
@@ -456,7 +488,7 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Sequence Canvas',
+                          'Sequence Studio',
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w900,
@@ -476,12 +508,10 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
                         ),
                       ],
                     ),
-                    IconButton(
-                      onPressed: widget.onToggleTheme,
-                      icon: Icon(
-                        widget.isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                      ),
-                      color: onSurface.withValues(alpha: 0.6),
+                    StudioIconButton(
+                      icon: widget.isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                      onTap: widget.onToggleTheme,
+                      tooltip: 'Toggle Theme',
                     ),
                   ],
                 ),
@@ -945,6 +975,65 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
         ),
         const SizedBox(height: 24),
 
+        // Predefined Sequence Templates
+        Text(
+          'PRESET TEMPLATES',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            color: onSurface.withValues(alpha: 0.4),
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 38,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _viewModel.templates.length,
+            itemBuilder: (context, idx) {
+              final template = _viewModel.templates[idx];
+              final isMatching = _viewModel.rows == template.rows &&
+                  _viewModel.cols == template.cols &&
+                  _viewModel.frames.length == template.frames.length;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: GestureDetector(
+                  onTap: () => _onLoadTemplate(template),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: isMatching
+                          ? _viewModel.activeColor.withValues(alpha: 0.15)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isMatching
+                            ? _viewModel.activeColor
+                            : onSurface.withValues(alpha: 0.08),
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      template.name.toUpperCase(),
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        color: isMatching ? _viewModel.activeColor : onSurface.withValues(alpha: 0.6),
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 24),
+
         // Grid Size Selectors (from 2x2 to 6x6 max!)
         Text(
           'GRID DENSITY',
@@ -960,42 +1049,18 @@ class _SequenceBuilderPageState extends State<SequenceBuilderPage> {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: [
-              _buildDensityChips(
-                '2 × 2',
-                _viewModel.rows == 2 && _viewModel.cols == 2,
-                () => _onGridSizeChange(2, 2),
-                onSurface,
-              ),
-              const SizedBox(width: 8),
-              _buildDensityChips(
-                '3 × 3',
-                _viewModel.rows == 3 && _viewModel.cols == 3,
-                () => _onGridSizeChange(3, 3),
-                onSurface,
-              ),
-              const SizedBox(width: 8),
-              _buildDensityChips(
-                '4 × 4',
-                _viewModel.rows == 4 && _viewModel.cols == 4,
-                () => _onGridSizeChange(4, 4),
-                onSurface,
-              ),
-              const SizedBox(width: 8),
-              _buildDensityChips(
-                '5 × 5',
-                _viewModel.rows == 5 && _viewModel.cols == 5,
-                () => _onGridSizeChange(5, 5),
-                onSurface,
-              ),
-              const SizedBox(width: 8),
-              _buildDensityChips(
-                '6 × 6',
-                _viewModel.rows == 6 && _viewModel.cols == 6,
-                () => _onGridSizeChange(6, 6),
-                onSurface,
-              ),
-            ],
+            children: [2, 3, 4, 5, 6].map((size) {
+              final isSel = _viewModel.rows == size && _viewModel.cols == size;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: _buildDensityChips(
+                  '$size × $size',
+                  isSel,
+                  () => _onGridSizeChange(size, size),
+                  onSurface,
+                ),
+              );
+            }).toList(),
           ),
         ),
         const SizedBox(height: 24),

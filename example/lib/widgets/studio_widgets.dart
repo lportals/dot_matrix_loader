@@ -148,36 +148,6 @@ class _GridPainter extends CustomPainter {
       oldDelegate.offset != offset;
 }
 
-class _DotPainter extends CustomPainter {
-  _DotPainter({
-    required this.color,
-    required this.spacing,
-    required this.offset,
-  });
-  final Color color;
-  final double spacing;
-  final Offset offset;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color;
-    final startX = offset.dx % spacing;
-    final startY = offset.dy % spacing;
-
-    for (double x = startX; x <= size.width; x += spacing) {
-      for (double y = startY; y <= size.height; y += spacing) {
-        canvas.drawCircle(Offset(x, y), 1.5, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DotPainter oldDelegate) =>
-      oldDelegate.color != color ||
-      oldDelegate.spacing != spacing ||
-      oldDelegate.offset != offset;
-}
-
 /// A wrapper that adds a subtle scale-down effect on press.
 class StudioInteractiveWrapper extends StatefulWidget {
   const StudioInteractiveWrapper({
@@ -252,3 +222,81 @@ class ShapeToggle extends StatelessWidget {
     );
   }
 }
+
+/// A premium circular interactive icon button used for TopBar/AppBar actions.
+class StudioIconButton extends StatefulWidget {
+  const StudioIconButton({
+    super.key,
+    required this.icon,
+    required this.onTap,
+    this.tooltip,
+    this.size = 36.0,
+    this.iconSize = 18.0,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final String? tooltip;
+  final double size;
+  final double iconSize;
+
+  @override
+  State<StudioIconButton> createState() => _StudioIconButtonState();
+}
+
+class _StudioIconButtonState extends State<StudioIconButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
+    Widget button = GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedScale(
+        scale: _pressed ? 0.90 : 1.0,
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOutCubic,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: widget.size,
+          height: widget.size,
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: widget.size,
+              height: widget.size,
+              decoration: BoxDecoration(
+                color: onSurface.withValues(alpha: 0.07),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                widget.icon,
+                size: widget.iconSize,
+                color: onSurface.withValues(alpha: 0.55),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (widget.tooltip != null) {
+      button = Tooltip(
+        message: widget.tooltip!,
+        child: button,
+      );
+    }
+
+    return button;
+  }
+}
+
