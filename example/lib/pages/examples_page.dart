@@ -162,29 +162,38 @@ class _ExamplesPageState extends State<ExamplesPage>
                               letterSpacing: 1.0,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: _viewModel.toggleCodeExpanded,
-                            child: Row(
-                              children: [
-                                Text(
-                                  _viewModel.isCodeExpanded ? 'HIDE CODE' : 'SHOW CODE',
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    color: activeColor,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  _viewModel.isCodeExpanded
-                                      ? Icons.keyboard_arrow_up_rounded
-                                      : Icons.keyboard_arrow_down_rounded,
-                                  size: 14,
-                                  color: activeColor,
-                                ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_viewModel.isCodeExpanded) ...[
+                                _buildCopyButton(activeColor),
+                                const SizedBox(width: 12),
                               ],
-                            ),
+                              GestureDetector(
+                                onTap: _viewModel.toggleCodeExpanded,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      _viewModel.isCodeExpanded ? 'HIDE CODE' : 'SHOW CODE',
+                                      style: TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: activeColor,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      _viewModel.isCodeExpanded
+                                          ? Icons.keyboard_arrow_up_rounded
+                                          : Icons.keyboard_arrow_down_rounded,
+                                      size: 14,
+                                      color: activeColor,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -196,6 +205,7 @@ class _ExamplesPageState extends State<ExamplesPage>
                           borderColor,
                           textColor,
                           activeColor,
+                          showHeader: false,
                         ),
                         secondChild: const SizedBox.shrink(),
                         crossFadeState: _viewModel.isCodeExpanded
@@ -635,72 +645,80 @@ class _ExamplesPageState extends State<ExamplesPage>
     );
   }
 
+  /// A premium copy button to replicate current code configurations to system clipboard.
+  Widget _buildCopyButton(Color activeColor) {
+    return GestureDetector(
+      onTap: () => _viewModel.copySnippetToClipboard(widget.isDark),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: _viewModel.codeCopied
+              ? Colors.green.withValues(alpha: 0.15)
+              : activeColor.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: _viewModel.codeCopied
+                ? Colors.green.withValues(alpha: 0.3)
+                : activeColor.withValues(alpha: 0.25),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              _viewModel.codeCopied ? Icons.check_rounded : Icons.copy_rounded,
+              size: 12,
+              color: _viewModel.codeCopied ? Colors.green : activeColor,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              _viewModel.codeCopied ? 'COPIED' : 'COPY',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: _viewModel.codeCopied ? Colors.green : activeColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Interactive Code Inspector card showcasing current layout syntax.
   Widget _buildCodeInspector(
     String snippet,
     Color surfaceColor,
     Color borderColor,
     Color textColor,
-    Color activeColor,
-  ) {
+    Color activeColor, {
+    bool showHeader = true,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'DART SOURCE CODE',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: textColor.withValues(alpha: 0.4),
-                letterSpacing: 1.0,
-              ),
-            ),
-            GestureDetector(
-              onTap: () => _viewModel.copySnippetToClipboard(widget.isDark),
-              behavior: HitTestBehavior.opaque,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _viewModel.codeCopied
-                      ? Colors.green.withValues(alpha: 0.15)
-                      : activeColor.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: _viewModel.codeCopied
-                        ? Colors.green.withValues(alpha: 0.3)
-                        : activeColor.withValues(alpha: 0.25),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _viewModel.codeCopied ? Icons.check_rounded : Icons.copy_rounded,
-                      size: 12,
-                      color: _viewModel.codeCopied ? Colors.green : activeColor,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      _viewModel.codeCopied ? 'COPIED' : 'COPY',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: _viewModel.codeCopied ? Colors.green : activeColor,
-                      ),
-                    ),
-                  ],
+        if (showHeader) ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'DART SOURCE CODE',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: textColor.withValues(alpha: 0.4),
+                  letterSpacing: 1.0,
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
+              _buildCopyButton(activeColor),
+            ],
+          ),
+          const SizedBox(height: 16),
+        ],
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -713,7 +731,7 @@ class _ExamplesPageState extends State<ExamplesPage>
             style: TextStyle(
               fontFamily: 'Courier',
               fontSize: 12,
-              color: textColor.withValues(alpha: 0.8),
+              color: widget.isDark ? const Color(0xFFE6EDF3) : const Color(0xFF24292F),
               height: 1.4,
             ),
           ),
