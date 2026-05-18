@@ -29,11 +29,16 @@ class ExamplesViewModel extends ChangeNotifier {
   double _activeGap = 3.2;
   double get activeGap => _activeGap;
 
+  double _activeLoaderSize = 20.0;
+  double get activeLoaderSize => _activeLoaderSize;
+
   DotShape _activeShape = DotShape.circle;
   DotShape get activeShape => _activeShape;
 
   Color _activeSelectedColor;
   Color get activeSelectedColor => _activeSelectedColor;
+
+  bool _isColorOverridden = false;
 
   // ── Filters & Search State ───────────────────────────────────────────
   String _searchQuery = '';
@@ -80,8 +85,10 @@ class ExamplesViewModel extends ChangeNotifier {
 
   /// Updates the default system primary color if it hasn't been overridden.
   void updateDefaultColor(Color color) {
-    _activeSelectedColor = color;
-    notifyListeners();
+    if (!_isColorOverridden && _activeSelectedColor != color) {
+      _activeSelectedColor = color;
+      notifyListeners();
+    }
   }
 
   /// Sets the active playground configurations.
@@ -92,8 +99,10 @@ class ExamplesViewModel extends ChangeNotifier {
     _activeCols = data.cols;
     _activeRadius = data.radius;
     _activeGap = data.gap;
+    _activeLoaderSize = data.loaderSize;
     _activeShape = data.shape;
     _activeSelectedColor = data.color;
+    _isColorOverridden = true;
     notifyListeners();
   }
 

@@ -12,6 +12,7 @@ class ConfigData {
     required this.gap,
     required this.shape,
     required this.color,
+    this.loaderSize = 20.0,
   });
 
   final String label;
@@ -22,4 +23,7 @@ class ConfigData {
   final double gap;
   final DotShape shape;
   final Color color;
+
+  /// The square dimension (in dp) of the container wrapping [DotMatrixLoader].
+  final double loaderSize;
 }

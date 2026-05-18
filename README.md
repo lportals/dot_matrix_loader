@@ -28,7 +28,7 @@ and a frame-by-frame sequence API — all driven by a single `AnimationControlle
 
 ```yaml
 dependencies:
-  dot_matrix_loader: ^0.1.4
+  dot_matrix_loader: ^0.1.5
 ```
 
 ---
@@ -251,13 +251,28 @@ The package comes with a highly polished, interactive developer playground (avai
 Key features inside the example app:
 1. **Interactive Studio Canvas**: Real-time playground to customize active dot colors, speed, dimensions, shapes, gaps, and haptics with live code generation.
 2. **Sequence Builder**: A frame-by-frame visual canvas to draw custom 2D grid animations. Design pixel art sequences and export clean Flutter Dart code instantly. Includes automatic session persistence at runtime.
-3. **Predefined Status Showcase**: Practical, real-world examples demonstrating how to use different dot-matrix loader presets in context (e.g., system diagnostics, database operations, media processing).
+
+3. **Scenario Simulator (Playground tab)**: A real-world system integration simulator demonstrating loaders in context (e.g., system diagnostics, database operations, media processing). Features include:
+   - **Shape-morphing UI** (Circle ⇄ Square) synced globally across all tabs.
+   - **Shimmer text effect** on the interactive status label — a continuous GPU-rendered gradient sweep.
+   - **Playground Setup sheet** with full real-time control over:
+     - Preset algorithm, label, and color
+     - Grid dimensions (Rows & Columns)
+     - **DOT SIZE** — controls `DotMatrixStyle.dotRadius` (`1.0–4.0`)
+     - **GAP SPACING** — controls `DotMatrixStyle.dotGap` (`1.0–8.0`)
+     - **LOADER SIZE** — controls the `SizedBox` container dimension (`10–30 dp`)
+     - **DOT SHAPE** — circle or rounded square, with icon-based toggles
+   - Live Dart source code generation and one-tap clipboard export.
+
+![Scenario Simulator](https://raw.githubusercontent.com/lportals/dot_matrix_loader/main/doc/gifs/scenario_simulator.gif)
 
 To run the playground locally:
 ```bash
 cd example
 flutter run -d chrome
 ```
+
+
 
 ---
 

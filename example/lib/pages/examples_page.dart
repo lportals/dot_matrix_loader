@@ -74,6 +74,7 @@ class _ExamplesPageState extends State<ExamplesPage>
         initialCols: _viewModel.activeCols,
         initialRadius: _viewModel.activeRadius,
         initialGap: _viewModel.activeGap,
+        initialLoaderSize: _viewModel.activeLoaderSize,
         initialShape: _viewModel.activeShape,
         initialColor: activeColor,
         onChanged: (data) {
@@ -141,7 +142,7 @@ class _ExamplesPageState extends State<ExamplesPage>
                               Icon(Icons.tune_rounded, size: 12, color: activeColor),
                               const SizedBox(width: 6),
                               Text(
-                                '${PresetRepository.formatPresetName(_viewModel.activePresetName)} (${_viewModel.activeRows}x${_viewModel.activeCols}) | Radius: ${_viewModel.activeRadius.toStringAsFixed(1)} | Gap: ${_viewModel.activeGap.toStringAsFixed(1)}',
+                                '${PresetRepository.formatPresetName(_viewModel.activePresetName)} (${_viewModel.activeRows}x${_viewModel.activeCols}) | Dot Size: ${_viewModel.activeRadius.toStringAsFixed(1)} | Gap: ${_viewModel.activeGap.toStringAsFixed(1)}',
                                 style: TextStyle(
                                   fontFamily: 'Courier',
                                   fontSize: 10,
@@ -376,6 +377,7 @@ class _ExamplesPageState extends State<ExamplesPage>
         gapOverride: _viewModel.activeGap,
         rowsOverride: _viewModel.activeRows,
         colsOverride: _viewModel.activeCols,
+        loaderSizeOverride: _viewModel.activeLoaderSize,
         onTap: _showFilterBottomSheet,
       ),
     );
@@ -781,6 +783,7 @@ class _StatusPillButton extends StatefulWidget {
     this.gapOverride,
     this.rowsOverride,
     this.colsOverride,
+    this.loaderSizeOverride,
     required this.onTap,
   });
 
@@ -795,14 +798,32 @@ class _StatusPillButton extends StatefulWidget {
   final double? gapOverride;
   final int? rowsOverride;
   final int? colsOverride;
+  /// Optional container size in dp. Defaults to 36 when null.
+  final double? loaderSizeOverride;
   final VoidCallback onTap;
 
   @override
   State<_StatusPillButton> createState() => _StatusPillButtonState();
 }
 
-class _StatusPillButtonState extends State<_StatusPillButton> {
+class _StatusPillButtonState extends State<_StatusPillButton> with SingleTickerProviderStateMixin {
   bool _pressed = false;
+  late final AnimationController _shimmerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _shimmerController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -850,8 +871,8 @@ class _StatusPillButtonState extends State<_StatusPillButton> {
           child: Row(
             children: [
               SizedBox(
-                width: 28,
-                height: 28,
+                width: widget.loaderSizeOverride ?? 36,
+                height: widget.loaderSizeOverride ?? 36,
                 child: DotMatrixLoader(
                   key: ValueKey('examples_pill_loader_${widget.label}'),
                   preset: widget.preset,
@@ -869,16 +890,38 @@ class _StatusPillButtonState extends State<_StatusPillButton> {
               ),
               const SizedBox(width: 18),
               Expanded(
-                child: Text(
-                  widget.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: 'Courier',
-                    fontSize: 16,
-                    fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.w500,
-                    color: textColor,
-                    letterSpacing: 0.5,
+                child: AnimatedBuilder(
+                  animation: _shimmerController,
+                  builder: (context, child) {
+                    return ShaderMask(
+                      shaderCallback: (bounds) {
+                        final slide = _shimmerController.value;
+                        return LinearGradient(
+                          begin: Alignment(-2.0 + slide * 4.0, -0.5),
+                          end: Alignment(0.0 + slide * 4.0, 0.5),
+                          colors: [
+                            textColor.withValues(alpha: 0.55),
+                            widget.isDark ? Colors.white : textColor,
+                            textColor.withValues(alpha: 0.55),
+                          ],
+                          stops: const [0.35, 0.5, 0.65],
+                        ).createShader(bounds);
+                      },
+                      blendMode: BlendMode.srcIn,
+                      child: child,
+                    );
+                  },
+                  child: Text(
+                    widget.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Courier',
+                      fontSize: 16,
+                      fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.w500,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ),
@@ -901,6 +944,7 @@ class _ConfigurationBottomSheet extends StatefulWidget {
     required this.initialCols,
     required this.initialRadius,
     required this.initialGap,
+    required this.initialLoaderSize,
     required this.initialShape,
     required this.initialColor,
     required this.onChanged,
@@ -913,6 +957,7 @@ class _ConfigurationBottomSheet extends StatefulWidget {
   final int initialCols;
   final double initialRadius;
   final double initialGap;
+  final double initialLoaderSize;
   final DotShape initialShape;
   final Color initialColor;
   final ValueChanged<ConfigData> onChanged;
@@ -928,6 +973,7 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
   late int _cols;
   late double _radius;
   late double _gap;
+  late double _loaderSize;
   late DotShape _shape;
   late Color _selectedColor;
 
@@ -940,6 +986,7 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
     _cols = widget.initialCols;
     _radius = widget.initialRadius;
     _gap = widget.initialGap;
+    _loaderSize = widget.initialLoaderSize;
     _shape = widget.initialShape;
     _selectedColor = widget.initialColor;
   }
@@ -959,6 +1006,7 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
         cols: _cols,
         radius: _radius,
         gap: _gap,
+        loaderSize: _loaderSize,
         shape: _shape,
         color: _selectedColor,
       ),
@@ -1198,7 +1246,7 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
                 children: [
                   Expanded(
                     child: _buildSliderField(
-                      'DOT RADIUS',
+                      'DOT SIZE',
                       _radius,
                       (val) {
                         setState(() => _radius = val);
@@ -1224,6 +1272,20 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+
+              // Loader container size
+              _buildSliderField(
+                'LOADER SIZE',
+                _loaderSize,
+                (val) {
+                  setState(() => _loaderSize = val);
+                  _notifyChange();
+                },
+                10.0,
+                30.0,
+                textColor,
               ),
               const SizedBox(height: 24),
 

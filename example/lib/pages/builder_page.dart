@@ -478,7 +478,7 @@ class _BuilderPageState extends State<BuilderPage>
                       ),
                       const SizedBox(height: 24),
 
-                      _SectionLabel('DOT RADIUS', onSurface: onSurface),
+                      _SectionLabel('DOT SIZE', onSurface: onSurface),
                       const SizedBox(height: 8),
                       _StyledSlider(
                         value: _viewModel.dotRadius,
