@@ -370,7 +370,7 @@ class _ShowcasePageState extends State<ShowcasePage>
         SliverToBoxAdapter(child: _buildHeader()),
 
         // ── Speed + color controls ─────────────────────────────────────────
-        SliverToBoxAdapter(child: _buildControls()),
+        SliverToBoxAdapter(child: _buildControls(width)),
 
         // ── Category filter ────────────────────────────────────────────────
         SliverToBoxAdapter(
@@ -503,7 +503,10 @@ class _ShowcasePageState extends State<ShowcasePage>
             ],
           ),
           const SizedBox(height: 12),
-          Row(
+          Wrap(
+            spacing: 0,
+            runSpacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               _buildSpecLabel('36 PRESETS', onSurface),
               _buildSpecDivider(onSurface),
@@ -524,10 +527,215 @@ class _ShowcasePageState extends State<ShowcasePage>
     );
   }
 
-  Widget _buildControls() {
+  /// Builds the interactive speed, color, shape, and grid control inputs.
+  /// 
+  /// The layout automatically adapts dynamically depending on the screen [width]
+  /// to ensure a responsive, overflow-free mobile experience.
+  Widget _buildControls(double width) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final trackInactive = onSurface.withValues(alpha: 0.12);
+    final isMobile = width < 600;
+
+    if (isMobile) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Row 1: Colors (left) + Shape Toggle (right)
+            Row(
+              children: [
+                _ColorDot(
+                  color: Theme.of(context).colorScheme.primary,
+                  selected: _activeColor == Theme.of(context).colorScheme.primary,
+                  onTap: () => setState(() => _activeColor = Theme.of(context).colorScheme.primary),
+                  isDark: isDark,
+                ),
+                const SizedBox(width: 8),
+                _ColorDot(
+                  color: const Color(0xFF42A5F5),
+                  selected: _activeColor == const Color(0xFF42A5F5),
+                  onTap: () => setState(() => _activeColor = const Color(0xFF42A5F5)),
+                  isDark: isDark,
+                ),
+                const SizedBox(width: 8),
+                _ColorDot(
+                  color: const Color(0xFF66BB6A),
+                  selected: _activeColor == const Color(0xFF66BB6A),
+                  onTap: () => setState(() => _activeColor = const Color(0xFF66BB6A)),
+                  isDark: isDark,
+                ),
+                const SizedBox(width: 8),
+                _ColorDot(
+                  color: const Color(0xFFAB47BC),
+                  selected: _activeColor == const Color(0xFFAB47BC),
+                  onTap: () => setState(() => _activeColor = const Color(0xFFAB47BC)),
+                  isDark: isDark,
+                ),
+                const Spacer(),
+                ShapeToggle(
+                  activeColor: _activeColor,
+                  onSurface: onSurface,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Row 2: Speed slider
+            Row(
+              children: [
+                Text(
+                  'SPEED',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: onSurface.withValues(alpha: 0.35),
+                    letterSpacing: 1.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: SliderTheme(
+                    data: SliderThemeData(
+                      trackHeight: 2,
+                      thumbShape:
+                          const RoundSliderThumbShape(enabledThumbRadius: 6),
+                      activeTrackColor: _activeColor,
+                      inactiveTrackColor: trackInactive,
+                      thumbColor: onSurface,
+                      overlayShape: SliderComponentShape.noOverlay,
+                    ),
+                    child: Slider(
+                      value: _speed,
+                      min: 0.25,
+                      max: 3.0,
+                      onChanged: _updateSpeed,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 28,
+                  child: Text(
+                    '${_speed.toStringAsFixed(1)}×',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: onSurface.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Row 3: Grid label
+            Text(
+              'GRID',
+              style: TextStyle(
+                fontSize: 10,
+                color: onSurface.withValues(alpha: 0.35),
+                letterSpacing: 1.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Row 4: Grid Row of two halves
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text(
+                        'R',
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: onSurface.withValues(alpha: 0.45)),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: SliderTheme(
+                          data: SliderThemeData(
+                            trackHeight: 2,
+                            thumbShape:
+                                const RoundSliderThumbShape(enabledThumbRadius: 5),
+                            activeTrackColor: _activeColor,
+                            inactiveTrackColor: trackInactive,
+                            thumbColor: onSurface,
+                            overlayShape: SliderComponentShape.noOverlay,
+                          ),
+                          child: Slider(
+                            value: _rows.toDouble(),
+                            min: 3,
+                            max: 5,
+                            divisions: 2,
+                            onChanged: (v) => setState(() => _rows = v.round()),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      SizedBox(
+                        width: 14,
+                        child: Text(
+                          '$_rows',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: onSurface.withValues(alpha: 0.55)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Text(
+                        'C',
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: onSurface.withValues(alpha: 0.45)),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: SliderTheme(
+                          data: SliderThemeData(
+                            trackHeight: 2,
+                            thumbShape:
+                                const RoundSliderThumbShape(enabledThumbRadius: 5),
+                            activeTrackColor: _activeColor,
+                            inactiveTrackColor: trackInactive,
+                            thumbColor: onSurface,
+                            overlayShape: SliderComponentShape.noOverlay,
+                          ),
+                          child: Slider(
+                            value: _cols.toDouble(),
+                            min: 3,
+                            max: 5,
+                            divisions: 2,
+                            onChanged: (v) => setState(() => _cols = v.round()),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      SizedBox(
+                        width: 14,
+                        child: Text(
+                          '$_cols',
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: onSurface.withValues(alpha: 0.55)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

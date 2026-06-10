@@ -127,30 +127,34 @@ class _ExamplesPageState extends State<ExamplesPage>
                       // Configuration status indicator quick display helper
                       GestureDetector(
                         onTap: _showFilterBottomSheet,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: activeColor.withValues(alpha: 0.06),
-                            borderRadius: _viewModel.activeShape == DotShape.circle 
-                                ? BorderRadius.circular(20) 
-                                : BorderRadius.circular(4),
-                            border: Border.all(color: activeColor.withValues(alpha: 0.15)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.tune_rounded, size: 12, color: activeColor),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${PresetRepository.formatPresetName(_viewModel.activePresetName)} (${_viewModel.activeRows}x${_viewModel.activeCols}) | Dot Size: ${_viewModel.activeRadius.toStringAsFixed(1)} | Gap: ${_viewModel.activeGap.toStringAsFixed(1)}',
-                                style: TextStyle(
-                                  fontFamily: 'Courier',
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: activeColor,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: activeColor.withValues(alpha: 0.06),
+                              borderRadius: _viewModel.activeShape == DotShape.circle 
+                                  ? BorderRadius.circular(20) 
+                                  : BorderRadius.circular(4),
+                              border: Border.all(color: activeColor.withValues(alpha: 0.15)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.tune_rounded, size: 12, color: activeColor),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${PresetRepository.formatPresetName(_viewModel.activePresetName)} (${_viewModel.activeRows}x${_viewModel.activeCols}) | Dot Size: ${_viewModel.activeRadius.toStringAsFixed(1)} | Gap: ${_viewModel.activeGap.toStringAsFixed(1)}',
+                                  style: TextStyle(
+                                    fontFamily: 'Courier',
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: activeColor,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -160,8 +164,11 @@ class _ExamplesPageState extends State<ExamplesPage>
                   final codeInspector = Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 12,
+                        runSpacing: 8,
                         children: [
                           Text(
                             'DART SOURCE CODE',
@@ -173,16 +180,17 @@ class _ExamplesPageState extends State<ExamplesPage>
                               letterSpacing: 1.0,
                             ),
                           ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 12,
+                            runSpacing: 8,
                             children: [
-                              if (_viewModel.isCodeExpanded) ...[
+                              if (_viewModel.isCodeExpanded)
                                 _buildCopyButton(activeColor),
-                                const SizedBox(width: 12),
-                              ],
                               GestureDetector(
                                 onTap: _viewModel.toggleCodeExpanded,
                                 child: Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
                                       _viewModel.isCodeExpanded ? 'HIDE CODE' : 'SHOW CODE',
