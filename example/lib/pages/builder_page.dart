@@ -202,6 +202,8 @@ class _BuilderPageState extends State<BuilderPage>
                                     dotGap: _viewModel.dotGap,
                                     dotShape: StudioProvider.of(context).shape,
                                     enableColorLerp: _viewModel.enableColorLerp,
+                                    enableGlow: _viewModel.enableGlow,
+                                    enableTrail: _viewModel.enableTrail,
                                   ),
                                   externalAnimation: _controller,
                                 ),
@@ -333,6 +335,8 @@ class _BuilderPageState extends State<BuilderPage>
                                             dotGap: _viewModel.dotGap * 1.5,
                                             dotShape: StudioProvider.of(context).shape,
                                             enableColorLerp: _viewModel.enableColorLerp,
+                                            enableGlow: _viewModel.enableGlow,
+                                            enableTrail: _viewModel.enableTrail,
                                           ),
                                           externalAnimation: _controller,
                                         ),
@@ -536,6 +540,44 @@ class _BuilderPageState extends State<BuilderPage>
                           ),
                         ],
                       ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Glow shadow',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: onSurface.withValues(alpha: 0.6),
+                            ),
+                          ),
+                          _Toggle(
+                            value: _viewModel.enableGlow,
+                            activeColor: _viewModel.activeColor,
+                            onSurface: onSurface,
+                            onChanged: (v) => _viewModel.toggleGlow(v),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Motion trail',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: onSurface.withValues(alpha: 0.6),
+                            ),
+                          ),
+                          _Toggle(
+                            value: _viewModel.enableTrail,
+                            activeColor: _viewModel.activeColor,
+                            onSurface: onSurface,
+                            onChanged: (v) => _viewModel.toggleTrail(v),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -702,6 +744,44 @@ class _BuilderPageState extends State<BuilderPage>
               activeColor: _viewModel.activeColor,
               onSurface: onSurface,
               onChanged: (v) => _viewModel.toggleColorLerp(v),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Glow shadow',
+              style: TextStyle(
+                fontSize: 13,
+                color: onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            _Toggle(
+              value: _viewModel.enableGlow,
+              activeColor: _viewModel.activeColor,
+              onSurface: onSurface,
+              onChanged: (v) => _viewModel.toggleGlow(v),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Motion trail',
+              style: TextStyle(
+                fontSize: 13,
+                color: onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            _Toggle(
+              value: _viewModel.enableTrail,
+              activeColor: _viewModel.activeColor,
+              onSurface: onSurface,
+              onChanged: (v) => _viewModel.toggleTrail(v),
             ),
           ],
         ),

@@ -318,6 +318,8 @@ class _ShowcasePageState extends State<ShowcasePage>
   int _rows = 5;
   int _cols = 5;
   late Color _activeColor;
+  bool _enableGlow = false;
+  bool _enableTrail = false;
 
   @override
   void initState() {
@@ -413,6 +415,8 @@ class _ShowcasePageState extends State<ShowcasePage>
                     dotShape: StudioProvider.of(context).shape,
                     rows: _rows,
                     cols: _cols,
+                    enableGlow: _enableGlow,
+                    enableTrail: _enableTrail,
                     onTap: () {
                       HapticFeedback.lightImpact();
                       widget.onSelectPreset(
@@ -574,6 +578,20 @@ class _ShowcasePageState extends State<ShowcasePage>
                   isDark: isDark,
                 ),
                 const Spacer(),
+                _GlowToggle(
+                  enabled: _enableGlow,
+                  activeColor: _activeColor,
+                  onSurface: onSurface,
+                  onTap: () => setState(() => _enableGlow = !_enableGlow),
+                ),
+                const SizedBox(width: 8),
+                _TrailToggle(
+                  enabled: _enableTrail,
+                  activeColor: _activeColor,
+                  onSurface: onSurface,
+                  onTap: () => setState(() => _enableTrail = !_enableTrail),
+                ),
+                const SizedBox(width: 8),
                 ShapeToggle(
                   activeColor: _activeColor,
                   onSurface: onSurface,
@@ -815,6 +833,20 @@ class _ShowcasePageState extends State<ShowcasePage>
                 ),
               ),
               const SizedBox(width: 16),
+              _GlowToggle(
+                enabled: _enableGlow,
+                activeColor: _activeColor,
+                onSurface: onSurface,
+                onTap: () => setState(() => _enableGlow = !_enableGlow),
+              ),
+              const SizedBox(width: 8),
+              _TrailToggle(
+                enabled: _enableTrail,
+                activeColor: _activeColor,
+                onSurface: onSurface,
+                onTap: () => setState(() => _enableTrail = !_enableTrail),
+              ),
+              const SizedBox(width: 8),
               ShapeToggle(
                 activeColor: _activeColor,
                 onSurface: onSurface,
@@ -1029,6 +1061,96 @@ class _ColorDot extends StatelessWidget {
           boxShadow: selected
               ? [BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 8)]
               : null,
+        ),
+      ),
+    );
+  }
+}
+
+class _GlowToggle extends StatelessWidget {
+  const _GlowToggle({
+    required this.enabled,
+    required this.activeColor,
+    required this.onSurface,
+    required this.onTap,
+  });
+
+  final bool enabled;
+  final Color activeColor;
+  final Color onSurface;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final studio = StudioProvider.of(context);
+    return StudioInteractiveWrapper(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: enabled
+              ? activeColor.withValues(alpha: 0.15)
+              : onSurface.withValues(alpha: 0.07),
+          borderRadius: studio.borderRadius,
+          border: Border.all(
+            color: enabled ? activeColor.withValues(alpha: 0.3) : Colors.transparent,
+            width: 1.0,
+          ),
+        ),
+        child: Icon(
+          Icons.flare_rounded,
+          size: 18,
+          color: enabled ? activeColor : onSurface.withValues(alpha: 0.55),
+        ),
+      ),
+    );
+  }
+}
+
+class _TrailToggle extends StatelessWidget {
+  const _TrailToggle({
+    required this.enabled,
+    required this.activeColor,
+    required this.onSurface,
+    required this.onTap,
+  });
+
+  final bool enabled;
+  final Color activeColor;
+  final Color onSurface;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final studio = StudioProvider.of(context);
+    return StudioInteractiveWrapper(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: enabled
+              ? activeColor.withValues(alpha: 0.15)
+              : onSurface.withValues(alpha: 0.07),
+          borderRadius: studio.borderRadius,
+          border: Border.all(
+            color: enabled ? activeColor.withValues(alpha: 0.3) : Colors.transparent,
+            width: 1.0,
+          ),
+        ),
+        child: Icon(
+          Icons.auto_awesome_motion_rounded,
+          size: 18,
+          color: enabled ? activeColor : onSurface.withValues(alpha: 0.55),
         ),
       ),
     );

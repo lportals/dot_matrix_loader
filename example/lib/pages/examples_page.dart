@@ -77,6 +77,8 @@ class _ExamplesPageState extends State<ExamplesPage>
         initialLoaderSize: _viewModel.activeLoaderSize,
         initialShape: _viewModel.activeShape,
         initialColor: activeColor,
+        initialGlow: _viewModel.activeGlow,
+        initialTrail: _viewModel.activeTrail,
         onChanged: (data) {
           _viewModel.updateConfig(data);
           StudioProvider.of(context).onShapeChanged(data.shape);
@@ -386,6 +388,8 @@ class _ExamplesPageState extends State<ExamplesPage>
         rowsOverride: _viewModel.activeRows,
         colsOverride: _viewModel.activeCols,
         loaderSizeOverride: _viewModel.activeLoaderSize,
+        glowOverride: _viewModel.activeGlow,
+        trailOverride: _viewModel.activeTrail,
         onTap: _showFilterBottomSheet,
       ),
     );
@@ -557,6 +561,8 @@ class _ExamplesPageState extends State<ExamplesPage>
                               gap: 3.2,
                               shape: _viewModel.activeShape,
                               color: _viewModel.activeSelectedColor,
+                              enableGlow: _viewModel.activeGlow,
+                              enableTrail: _viewModel.activeTrail,
                             ),
                           );
                         },
@@ -603,6 +609,8 @@ class _ExamplesPageState extends State<ExamplesPage>
                                             ? activeColor.withValues(alpha: 0.08)
                                             : textColor.withValues(alpha: 0.05),
                                         dotShape: _viewModel.activeShape,
+                                        enableGlow: isCurrentSelected ? _viewModel.activeGlow : false,
+                                        enableTrail: isCurrentSelected ? _viewModel.activeTrail : false,
                                       ),
                                       externalAnimation: _sharedController,
                                     ),
@@ -792,6 +800,8 @@ class _StatusPillButton extends StatefulWidget {
     this.rowsOverride,
     this.colsOverride,
     this.loaderSizeOverride,
+    this.glowOverride,
+    this.trailOverride,
     required this.onTap,
   });
 
@@ -808,6 +818,8 @@ class _StatusPillButton extends StatefulWidget {
   final int? colsOverride;
   /// Optional container size in dp. Defaults to 36 when null.
   final double? loaderSizeOverride;
+  final bool? glowOverride;
+  final bool? trailOverride;
   final VoidCallback onTap;
 
   @override
@@ -848,6 +860,8 @@ class _StatusPillButtonState extends State<_StatusPillButton> with SingleTickerP
     final resolvedGap = widget.gapOverride ?? 3.2;
     final resolvedRows = widget.rowsOverride ?? 3;
     final resolvedCols = widget.colsOverride ?? 3;
+    final resolvedGlow = widget.glowOverride ?? false;
+    final resolvedTrail = widget.trailOverride ?? false;
 
     final textColor = widget.isSelected
         ? activeColor
@@ -892,6 +906,8 @@ class _StatusPillButtonState extends State<_StatusPillButton> with SingleTickerP
                     activeColor: activeColor,
                     inactiveColor: inactiveColor,
                     dotShape: resolvedShape,
+                    enableGlow: resolvedGlow,
+                    enableTrail: resolvedTrail,
                   ),
                   externalAnimation: widget.sharedAnimation,
                 ),
@@ -955,6 +971,8 @@ class _ConfigurationBottomSheet extends StatefulWidget {
     required this.initialLoaderSize,
     required this.initialShape,
     required this.initialColor,
+    required this.initialGlow,
+    required this.initialTrail,
     required this.onChanged,
   });
 
@@ -968,6 +986,8 @@ class _ConfigurationBottomSheet extends StatefulWidget {
   final double initialLoaderSize;
   final DotShape initialShape;
   final Color initialColor;
+  final bool initialGlow;
+  final bool initialTrail;
   final ValueChanged<ConfigData> onChanged;
 
   @override
@@ -984,6 +1004,8 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
   late double _loaderSize;
   late DotShape _shape;
   late Color _selectedColor;
+  late bool _glow;
+  late bool _trail;
 
   @override
   void initState() {
@@ -997,6 +1019,8 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
     _loaderSize = widget.initialLoaderSize;
     _shape = widget.initialShape;
     _selectedColor = widget.initialColor;
+    _glow = widget.initialGlow;
+    _trail = widget.initialTrail;
   }
 
   @override
@@ -1017,6 +1041,8 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
         loaderSize: _loaderSize,
         shape: _shape,
         color: _selectedColor,
+        enableGlow: _glow,
+        enableTrail: _trail,
       ),
     );
   }
@@ -1329,9 +1355,94 @@ class _ConfigurationBottomSheetState extends State<_ConfigurationBottomSheet> {
                   ),
                 ],
               ),
+              const SizedBox(height: 24),
+
+              // Glow & Trail Toggles
+              Text(
+                'EFFECTS',
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  color: textColor.withValues(alpha: 0.4),
+                  letterSpacing: 1.0,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildEffectButton(
+                      'GLOW',
+                      _glow,
+                      (val) => setState(() => _glow = val),
+                      textColor,
+                      borderColor,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildEffectButton(
+                      'TRAIL',
+                      _trail,
+                      (val) => setState(() => _trail = val),
+                      textColor,
+                      borderColor,
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEffectButton(
+    String label,
+    bool active,
+    ValueChanged<bool> onChanged,
+    Color textColor,
+    Color borderColor,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onChanged(!active);
+        _notifyChange();
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        height: 44,
+        decoration: BoxDecoration(
+          color: active ? _selectedColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: active ? Colors.transparent : borderColor),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              label == 'GLOW' ? Icons.flare_rounded : Icons.auto_awesome_motion_rounded,
+              size: 16,
+              color: active
+                  ? (widget.isDark ? Colors.black : Colors.white)
+                  : textColor.withValues(alpha: 0.6),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: active
+                    ? (widget.isDark ? Colors.black : Colors.white)
+                    : textColor.withValues(alpha: 0.6),
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
         ),
       ),
     );

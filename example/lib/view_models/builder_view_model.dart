@@ -48,6 +48,12 @@ class BuilderViewModel extends ChangeNotifier {
   bool _copied = false;
   bool get copied => _copied;
 
+  bool _enableGlow = false;
+  bool get enableGlow => _enableGlow;
+
+  bool _enableTrail = false;
+  bool get enableTrail => _enableTrail;
+
   /// Returns the corresponding DotMatrixPreset class instance.
   DotMatrixPreset get preset =>
       PresetRepository.presetsByDisplayName[_presetName] ?? const PulseRings();
@@ -105,6 +111,18 @@ class BuilderViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sets the glow mode.
+  void toggleGlow(bool value) {
+    _enableGlow = value;
+    notifyListeners();
+  }
+
+  /// Sets the trail mode.
+  void toggleTrail(bool value) {
+    _enableTrail = value;
+    notifyListeners();
+  }
+
   /// Sets animation controller speed and updates its duration dynamically.
   void updateSpeed(double v, AnimationController controller) {
     _speed = v;
@@ -146,6 +164,12 @@ class BuilderViewModel extends ChangeNotifier {
     }
     if (!_enableColorLerp) {
       sb.writeln('    enableColorLerp: false,');
+    }
+    if (_enableGlow) {
+      sb.writeln('    enableGlow: true,');
+    }
+    if (_enableTrail) {
+      sb.writeln('    enableTrail: true,');
     }
     sb.writeln('  ),');
     if (_loaderSize != 100.0) {

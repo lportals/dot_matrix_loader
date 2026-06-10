@@ -28,6 +28,8 @@ class DotMatrixStyle {
     this.enableHaptics = false,
     this.loop = true,
     this.loopPause = Duration.zero,
+    this.enableGlow = false,
+    this.enableTrail = false,
   });
 
   /// Number of dot columns in the grid.
@@ -80,6 +82,12 @@ class DotMatrixStyle {
   /// Pause duration inserted between loop iterations.
   final Duration loopPause;
 
+  /// When true, a soft glow/shadow is rendered behind each active dot.
+  final bool enableGlow;
+
+  /// When true, a fading trail is rendered behind moving dots.
+  final bool enableTrail;
+
   /// Returns the total pixel width of the dot grid.
   double get gridWidth =>
       (columns * dotRadius * 2) + ((columns - 1) * dotGap);
@@ -101,6 +109,8 @@ class DotMatrixStyle {
     bool? enableHaptics,
     bool? loop,
     Duration? loopPause,
+    bool? enableGlow,
+    bool? enableTrail,
   }) {
     return DotMatrixStyle(
       columns: columns ?? this.columns,
@@ -115,6 +125,8 @@ class DotMatrixStyle {
       enableHaptics: enableHaptics ?? this.enableHaptics,
       loop: loop ?? this.loop,
       loopPause: loopPause ?? this.loopPause,
+      enableGlow: enableGlow ?? this.enableGlow,
+      enableTrail: enableTrail ?? this.enableTrail,
     );
   }
 }

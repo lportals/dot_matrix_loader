@@ -13,6 +13,8 @@ class ConfigData {
     required this.shape,
     required this.color,
     this.loaderSize = 20.0,
+    this.enableGlow = false,
+    this.enableTrail = false,
   });
 
   final String label;
@@ -26,4 +28,10 @@ class ConfigData {
 
   /// The square dimension (in dp) of the container wrapping [DotMatrixLoader].
   final double loaderSize;
+
+  /// Whether glow shadow is enabled.
+  final bool enableGlow;
+
+  /// Whether motion trail is enabled.
+  final bool enableTrail;
 }

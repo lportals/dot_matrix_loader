@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../models/dot_matrix_style.dart';
 import '../models/dot_matrix_preset.dart';
@@ -55,10 +56,26 @@ class DotMatrixPainter extends CustomPainter {
       for (int col = 0; col < style.columns; col++) {
         final dotState = frame(row, col, style.rows, style.columns, t);
 
-        final opacity = dotState.opacity.clamp(0.0, 1.0);
-        final scale = dotState.scale.clamp(0.0, 1.0);
+        double opacity = dotState.opacity.clamp(0.0, 1.0);
+        double scale = dotState.scale.clamp(0.0, 1.0);
 
-        paint.color = style.enableColorLerp
+        if (style.enableTrail) {
+          const trailSteps = 4;
+          const decayFactor = 0.5;
+          const timeStep = 0.05;
+          for (int i = 1; i <= trailSteps; i++) {
+            final rawTPrev = t - i * timeStep;
+            final tPrev = rawTPrev < 0 ? rawTPrev + 1.0 : rawTPrev;
+            final prevDotState = frame(row, col, style.rows, style.columns, tPrev);
+            final prevOpacity = prevDotState.opacity.clamp(0.0, 1.0) * math.pow(decayFactor, i);
+            if (prevOpacity > opacity) {
+              opacity = prevOpacity;
+              scale = math.max(scale, prevDotState.scale.clamp(0.0, 1.0) * math.pow(decayFactor, i));
+            }
+          }
+        }
+
+        final dotColor = style.enableColorLerp
             ? Color.lerp(style.inactiveColor, style.activeColor, opacity)!
             : style.activeColor.withValues(alpha: opacity);
 
@@ -68,6 +85,30 @@ class DotMatrixPainter extends CustomPainter {
 
         final currentRadius = dotRadius * scale;
 
+        // Draw soft glow first if enabled
+        if (style.enableGlow && opacity > 0.05) {
+          final glowPaint = Paint()
+            ..style = PaintingStyle.fill
+            ..color = dotColor.withValues(alpha: opacity * 0.25)
+            ..maskFilter = MaskFilter.blur(BlurStyle.normal, dotRadius * 0.8);
+
+          if (style.dotShape == DotShape.circle) {
+            canvas.drawCircle(Offset(cx, cy), currentRadius * 1.4, glowPaint);
+          } else {
+            final rect = Rect.fromCenter(
+              center: Offset(cx, cy),
+              width: currentRadius * 2.8,
+              height: currentRadius * 2.8,
+            );
+            canvas.drawRRect(
+              RRect.fromRectAndRadius(rect, Radius.circular(currentRadius * 0.25)),
+              glowPaint,
+            );
+          }
+        }
+
+        // Draw the main dot on top
+        paint.color = dotColor;
         if (style.dotShape == DotShape.circle) {
           canvas.drawCircle(Offset(cx, cy), currentRadius, paint);
         } else {

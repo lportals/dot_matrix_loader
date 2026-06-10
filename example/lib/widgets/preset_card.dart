@@ -33,6 +33,8 @@ class PresetCard extends StatefulWidget {
     required this.dotShape,
     this.rows = 5,
     this.cols = 5,
+    this.enableGlow = false,
+    this.enableTrail = false,
     this.onTap,
   });
 
@@ -41,6 +43,8 @@ class PresetCard extends StatefulWidget {
   final Color activeColor;
   final DotShape dotShape;
   final VoidCallback? onTap;
+  final bool enableGlow;
+  final bool enableTrail;
 
   /// Number of rows in the dot grid preview.
   final int rows;
@@ -109,6 +113,8 @@ class _PresetCardState extends State<PresetCard> {
                           dotShape: widget.dotShape,
                           dotRadius: 5.5,
                           dotGap: 6,
+                          enableGlow: widget.enableGlow,
+                          enableTrail: widget.enableTrail,
                         ),
                         externalAnimation: widget.sharedAnimation,
                       ),

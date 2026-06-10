@@ -38,6 +38,12 @@ class ExamplesViewModel extends ChangeNotifier {
   Color _activeSelectedColor;
   Color get activeSelectedColor => _activeSelectedColor;
 
+  bool _activeGlow = false;
+  bool get activeGlow => _activeGlow;
+
+  bool _activeTrail = false;
+  bool get activeTrail => _activeTrail;
+
   bool _isColorOverridden = false;
 
   // ── Filters & Search State ───────────────────────────────────────────
@@ -102,6 +108,8 @@ class ExamplesViewModel extends ChangeNotifier {
     _activeLoaderSize = data.loaderSize;
     _activeShape = data.shape;
     _activeSelectedColor = data.color;
+    _activeGlow = data.enableGlow;
+    _activeTrail = data.enableTrail;
     _isColorOverridden = true;
     notifyListeners();
   }
@@ -142,6 +150,9 @@ class ExamplesViewModel extends ChangeNotifier {
     final inactiveAlpha = isDark ? '1F' : '14'; // 0.08 vs 0.04 opacities
     final baseColor = isDark ? 'FFFFFF' : '000000';
 
+    final glowPart = _activeGlow ? '\n    enableGlow: true,' : '';
+    final trailPart = _activeTrail ? '\n    enableTrail: true,' : '';
+
     return '''DotMatrixLoader(
   preset: const $_activePresetName(),
   style: DotMatrixStyle(
@@ -151,7 +162,7 @@ class ExamplesViewModel extends ChangeNotifier {
     dotGap: ${_activeGap.toStringAsFixed(1)},
     activeColor: const Color(0xFF$colorHex),
     inactiveColor: const Color(0x$inactiveAlpha$baseColor),
-    dotShape: DotShape.${_activeShape.name},
+    dotShape: DotShape.${_activeShape.name},$glowPart$trailPart
   ),
 )''';
   }
