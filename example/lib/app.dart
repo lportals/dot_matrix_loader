@@ -182,7 +182,7 @@ class _SidebarRail extends StatelessWidget {
           const SizedBox(height: 16),
           _RailTab(
             label: 'Sequence',
-            icon: Icons.auto_awesome_motion_rounded,
+            icon: Icons.view_carousel_rounded,
             active: currentIndex == 1,
             onTap: () => onTap(1),
           ),

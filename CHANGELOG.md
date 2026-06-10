@@ -1,3 +1,20 @@
+## 0.2.0
+
+### Preset Expansion & Documentation Update
+- **25 New Built-in Presets**: Added 25 new premium, mathematically defined, looping animation presets, bringing the total built-in presets from 36 to 61. The new presets include:
+  - `MatrixRain`, `PingPong`, `FadingGrid`, `CrossSlide`, `ConcentricBoxes`, `DNAHelix`, `HeartbeatDouble`, `Fireworks`, `ExpandingPolygons`, `SinePlasma`, `CellularAutomaton`, `Supernova`, `Vortex`, `InfinityLoop`, `LiquidFluid`, `TetrisDrop`, `LaserSweep`, `Starfield`, `BarChart`, `Labyrinth`, `PacmanChase`, `SineWaveMultiply`, `PulseWave`, `Hourglass`, and `LoadingArc`.
+- **Documentation**: Updated README.md, pubspec.yaml, and showcase examples references to reflect the new 61 presets count.
+
+## 0.1.6
+
+### Features & Styling Polish
+- **Motion Trail (Phosphor Decay)**: Added `enableTrail` option to `DotMatrixStyle`. It simulates retro phosphor screen persistence by statelessly rendering previous frames with an exponential decay, creating a beautiful trailing effect behind moving elements. Exposes toggles in all designer and playground screens.
+- **Neon Glow (Soft Shadow)**: Added `enableGlow` option to `DotMatrixStyle`. It applies a soft blurred neon lighting mask under active dots using GPU-accelerated blurs to simulate physical LEDs. Exposes toggles in all designer and playground screens.
+- **Mobile Responsive Enhancements**:
+  - Replaced tight header layout Rows with wrapping flows (`Wrap`) to prevent text overflows on narrow viewports.
+  - Refactored `ShowcasePage` controls with a fluid `LayoutBuilder` to stack options vertically on screens < 600dp and use `Expanded` sliders to fit any viewport.
+  - Configured Examples Playground code inspector and settings pills to scale down elegantly on narrow screens.
+
 ## 0.1.5
 
 ### Features & Styling Polish

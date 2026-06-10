@@ -10,6 +10,12 @@ void main() {
       StackFill(), Veil(), Radar(), Scanner(), Collapse(), Static(),
       Wanderer(), Crosshair(), RippleIn(), Wipe(), Twinkle(), ZigZag(),
       Equalizer(), Gravity(), Glitch(), Diamond(), Checkerboard(), Breathe(),
+      MatrixRain(), PingPong(), FadingGrid(), CrossSlide(), ConcentricBoxes(),
+      DNAHelix(), HeartbeatDouble(), Fireworks(), ExpandingPolygons(),
+      SinePlasma(), CellularAutomaton(), Supernova(), Vortex(), InfinityLoop(),
+      LiquidFluid(), TetrisDrop(), LaserSweep(), Starfield(), BarChart(),
+      Labyrinth(), PacmanChase(), SineWaveMultiply(), PulseWave(),
+      Hourglass(), LoadingArc(),
     ];
 
     for (final preset in presets) {

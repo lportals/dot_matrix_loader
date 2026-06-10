@@ -55,6 +55,32 @@ class Glitch extends DotMatrixPreset { const Glitch(); }
 class Diamond extends DotMatrixPreset { const Diamond(); }
 class Checkerboard extends DotMatrixPreset { const Checkerboard(); }
 class Breathe extends DotMatrixPreset { const Breathe(); }
+class MatrixRain extends DotMatrixPreset { const MatrixRain(); }
+class PingPong extends DotMatrixPreset { const PingPong(); }
+class FadingGrid extends DotMatrixPreset { const FadingGrid(); }
+class CrossSlide extends DotMatrixPreset { const CrossSlide(); }
+class ConcentricBoxes extends DotMatrixPreset { const ConcentricBoxes(); }
+class DNAHelix extends DotMatrixPreset { const DNAHelix(); }
+class HeartbeatDouble extends DotMatrixPreset { const HeartbeatDouble(); }
+class Fireworks extends DotMatrixPreset { const Fireworks(); }
+class ExpandingPolygons extends DotMatrixPreset { const ExpandingPolygons(); }
+class SinePlasma extends DotMatrixPreset { const SinePlasma(); }
+class CellularAutomaton extends DotMatrixPreset { const CellularAutomaton(); }
+class Supernova extends DotMatrixPreset { const Supernova(); }
+class Vortex extends DotMatrixPreset { const Vortex(); }
+class InfinityLoop extends DotMatrixPreset { const InfinityLoop(); }
+class LiquidFluid extends DotMatrixPreset { const LiquidFluid(); }
+class TetrisDrop extends DotMatrixPreset { const TetrisDrop(); }
+class LaserSweep extends DotMatrixPreset { const LaserSweep(); }
+class Starfield extends DotMatrixPreset { const Starfield(); }
+class BarChart extends DotMatrixPreset { const BarChart(); }
+class Labyrinth extends DotMatrixPreset { const Labyrinth(); }
+class PacmanChase extends DotMatrixPreset { const PacmanChase(); }
+class SineWaveMultiply extends DotMatrixPreset { const SineWaveMultiply(); }
+class PulseWave extends DotMatrixPreset { const PulseWave(); }
+class Hourglass extends DotMatrixPreset { const Hourglass(); }
+class LoadingArc extends DotMatrixPreset { const LoadingArc(); }
+
 
 class CustomDotAnimation extends DotMatrixPreset {
   const CustomDotAnimation({required this.builder});
@@ -104,6 +130,31 @@ DotAnimationFrame resolvePreset(DotMatrixPreset preset) {
     Diamond() => _diamond,
     Checkerboard() => _checkerboard,
     Breathe() => _breathe,
+    MatrixRain() => _matrixRain,
+    PingPong() => _pingPong,
+    FadingGrid() => _fadingGrid,
+    CrossSlide() => _crossSlide,
+    ConcentricBoxes() => _concentricBoxes,
+    DNAHelix() => _dnaHelix,
+    HeartbeatDouble() => _heartbeatDouble,
+    Fireworks() => _fireworks,
+    ExpandingPolygons() => _expandingPolygons,
+    SinePlasma() => _sinePlasma,
+    CellularAutomaton() => _cellularAutomaton,
+    Supernova() => _supernova,
+    Vortex() => _vortex,
+    InfinityLoop() => _infinityLoop,
+    LiquidFluid() => _liquidFluid,
+    TetrisDrop() => _tetrisDrop,
+    LaserSweep() => _laserSweep,
+    Starfield() => _starfield,
+    BarChart() => _barChart,
+    Labyrinth() => _labyrinth,
+    PacmanChase() => _pacmanChase,
+    SineWaveMultiply() => _sineWaveMultiply,
+    PulseWave() => _pulseWave,
+    Hourglass() => _hourglass,
+    LoadingArc() => _loadingArc,
     CustomDotAnimation(:final builder) => builder,
     SequenceAnimation(:final frames) => (row, col, rows, cols, t) {
         if (frames.isEmpty) return const DotState(opacity: 0, scale: 0);
@@ -337,4 +388,333 @@ DotState _checkerboard(int row, int col, int rows, int cols, double t) {
 
 DotState _breathe(int row, int col, int rows, int cols, double t) {
   final v = (math.sin(t*2*math.pi)+1)/2; return DotState(opacity: v, scale: 0.4 + 0.6 * v);
+}
+
+DotState _matrixRain(int row, int col, int rows, int cols, double t) {
+  final colOffset = math.sin(col * 3.0 + 1.0) * 0.5 + 0.5;
+  final speed = 0.8 + 0.4 * colOffset;
+  final localT = (t * speed + colOffset) % 1.0;
+  final headRow = (localT * (rows + 4)) - 2;
+  final dist = row - headRow;
+  if (dist > 0) return const DotState(opacity: 0, scale: 0.3);
+  final v = math.exp(dist * 0.8).clamp(0.0, 1.0);
+  return DotState(opacity: v, scale: 0.4 + 0.6 * v);
+}
+
+DotState _pingPong(int row, int col, int rows, int cols, double t) {
+  final tx = (t * 2 % 2.0 - 1.0).abs();
+  final ty = (t * 3 % 2.0 - 1.0).abs();
+  final targetCol = tx * (cols - 1);
+  final targetRow = ty * (rows - 1);
+  final dist = math.sqrt(math.pow(col - targetCol, 2) + math.pow(row - targetRow, 2));
+  final v = math.max(0.0, 1.0 - dist * 1.2);
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _fadingGrid(int row, int col, int rows, int cols, double t) {
+  final group = (row + col) % 2;
+  final v = group == 0 ? (math.sin(t * 2 * math.pi) + 1) / 2 : (math.cos(t * 2 * math.pi) + 1) / 2;
+  return DotState(opacity: v, scale: 0.4 + 0.6 * v);
+}
+
+DotState _crossSlide(int row, int col, int rows, int cols, double t) {
+  final slideCol = (t * cols).floor() % cols;
+  final slideRow = ((1.0 - t) * rows).floor() % rows;
+  final isMe = (col == slideCol || row == slideRow);
+  final v = isMe ? 1.0 : 0.08;
+  return DotState(opacity: v, scale: isMe ? 1.0 : 0.4);
+}
+
+DotState _concentricBoxes(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0; final cy = (rows - 1) / 2.0;
+  final chebyshev = math.max((col - cx).abs(), (row - cy).abs());
+  final maxDist = math.max(cx, cy);
+  final delay = maxDist > 0 ? chebyshev / maxDist : 0.0;
+  final v = math.sin((t - delay * 0.5) * 2 * math.pi).abs();
+  return DotState(opacity: v, scale: 0.35 + 0.65 * v);
+}
+
+DotState _dnaHelix(int row, int col, int rows, int cols, double t) {
+  final normalizedRow = row / rows;
+  final angle = t * 2 * math.pi + normalizedRow * 2 * math.pi;
+  final center = (cols - 1) / 2.0;
+  final amplitude = (cols - 1) * 0.45;
+  final pos1 = center + math.sin(angle) * amplitude;
+  final pos2 = center - math.sin(angle) * amplitude;
+  final d1 = (col - pos1).abs();
+  final d2 = (col - pos2).abs();
+  final v = math.max(math.max(0.0, 1.0 - d1 * 1.5), math.max(0.0, 1.0 - d2 * 1.5));
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _heartbeatDouble(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0; final cy = (rows - 1) / 2.0;
+  final dist = math.sqrt(math.pow(col - cx, 2) + math.pow(row - cy, 2));
+  final maxDist = math.sqrt(cx * cx + cy * cy);
+  final delay = maxDist > 0 ? dist / maxDist : 0.0;
+  final pulseT = (t - delay * 0.15) % 1.0;
+  double v = 0.0;
+  if (pulseT < 0.15) {
+    v = math.sin((pulseT / 0.15) * math.pi);
+  } else if (pulseT >= 0.2 && pulseT < 0.4) {
+    v = 0.6 * math.sin(((pulseT - 0.2) / 0.2) * math.pi);
+  }
+  return DotState(opacity: v, scale: 0.35 + 0.65 * v);
+}
+
+DotState _fireworks(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0; final cy = (rows - 1) / 2.0;
+  if (t < 0.4) {
+    final riseT = t / 0.4;
+    final targetRow = (rows - 1) - riseT * (rows - 1 - cy);
+    final dist = math.sqrt(math.pow(col - cx, 2) + math.pow(row - targetRow, 2));
+    final v = math.max(0.0, 1.0 - dist * 1.5);
+    return DotState(opacity: v, scale: 0.4 + 0.6 * v);
+  } else {
+    final explT = (t - 0.4) / 0.6;
+    final r = explT * (cx + cy);
+    final dist = math.sqrt(math.pow(col - cx, 2) + math.pow(row - cy, 2));
+    final diff = (dist - r).abs();
+    final edgeFade = 1.0 - explT;
+    final v = (math.max(0.0, 1.0 - diff * 2.0) * edgeFade).clamp(0.0, 1.0);
+    return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+  }
+}
+
+DotState _expandingPolygons(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0; final cy = (rows - 1) / 2.0;
+  final dist = (col - cx).abs() + (row - cy).abs() * 0.8;
+  final v = math.sin(dist - t * 2 * math.pi).abs();
+  return DotState(opacity: v, scale: 0.35 + 0.65 * v);
+}
+
+DotState _sinePlasma(int row, int col, int rows, int cols, double t) {
+  final nx = col / cols; final ny = row / rows;
+  final v1 = math.sin(nx * 5.0 + t * 2 * math.pi);
+  final v2 = math.cos(ny * 4.0 - t * 2 * math.pi);
+  final v3 = math.sin((nx + ny) * 3.0 + t * 2 * math.pi * 1.5);
+  final v = ((v1 + v2 + v3) / 3.0 + 1.0) / 2.0;
+  return DotState(opacity: v, scale: 0.35 + 0.65 * v);
+}
+
+DotState _cellularAutomaton(int row, int col, int rows, int cols, double t) {
+  final step = (t * 4).floor() % 4;
+  final activeGrid = switch (step) {
+    0 => [
+        [false, true, false],
+        [false, false, true],
+        [true, true, true]
+      ],
+    1 => [
+        [true, false, true],
+        [false, true, true],
+        [false, true, false]
+      ],
+    2 => [
+        [false, false, true],
+        [true, false, true],
+        [false, true, true]
+      ],
+    _ => [
+        [true, true, false],
+        [true, false, true],
+        [false, false, true]
+      ],
+  };
+  final r = row % 3; final c = col % 3;
+  final isActive = activeGrid[r][c];
+  final v = isActive ? 1.0 : 0.1;
+  return DotState(opacity: v, scale: isActive ? 1.0 : 0.4);
+}
+
+DotState _supernova(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0; final cy = (rows - 1) / 2.0;
+  final dist = math.sqrt(math.pow(col - cx, 2) + math.pow(row - cy, 2));
+  final maxDist = math.sqrt(cx * cx + cy * cy);
+  if (t < 0.5) {
+    final implodeT = t / 0.5;
+    final r = (1.0 - implodeT) * maxDist;
+    final diff = (dist - r).abs();
+    final v = math.max(0.0, 1.0 - diff * 1.5);
+    return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+  } else {
+    final explodeT = (t - 0.5) / 0.5;
+    final r = explodeT * maxDist * 1.5;
+    final diff = (dist - r).abs();
+    final fade = 1.0 - explodeT;
+    final v = (math.max(0.0, 1.0 - diff * 1.8) * fade).clamp(0.0, 1.0);
+    return DotState(opacity: v, scale: 0.4 + 0.6 * v);
+  }
+}
+
+DotState _vortex(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0; final cy = (rows - 1) / 2.0;
+  final dx = col - cx; final dy = row - cy;
+  final dist = math.sqrt(dx*dx + dy*dy);
+  final angle = math.atan2(dy, dx);
+  final speedMult = dist > 0 ? (1.0 / (dist + 0.5)) * 3.0 : 1.0;
+  final v = ((math.sin(angle - t * 2 * math.pi * speedMult) + 1.0) / 2.0);
+  return DotState(opacity: v, scale: 0.35 + 0.65 * v);
+}
+
+DotState _infinityLoop(int row, int col, int rows, int cols, double t) {
+  final angle = t * 2 * math.pi;
+  final targetX = ((math.sin(angle) + 1.0) / 2.0) * (cols - 1);
+  final targetY = ((math.sin(2.0 * angle) + 1.0) / 2.0) * (rows - 1);
+  final dist = math.sqrt(math.pow(col - targetX, 2) + math.pow(row - targetY, 2));
+  final v = math.max(0.0, 1.0 - dist * 1.2);
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _liquidFluid(int row, int col, int rows, int cols, double t) {
+  final nx = col / cols; final ny = row / rows;
+  final v = (math.sin(nx * 3.0 + t * 2 * math.pi) * math.cos(ny * 3.0 + t * 2 * math.pi) + 1.0) / 2.0;
+  return DotState(opacity: v, scale: 0.35 + 0.65 * v);
+}
+
+DotState _tetrisDrop(int row, int col, int rows, int cols, double t) {
+  final cycleT = t % 1.0;
+  final activeCol = (col % 4) < 2;
+  if (cycleT < 0.7) {
+    final fallT = cycleT / 0.7;
+    final headRow = (fallT * (rows + 2)).floor();
+    final isFalling = activeCol && (row == headRow || row == headRow - 1);
+    final isAtBottom = !activeCol && row >= rows - 2;
+    final isMe = isFalling || isAtBottom;
+    final v = isMe ? 1.0 : 0.1;
+    return DotState(opacity: v, scale: isMe ? 1.0 : 0.4);
+  } else {
+    final blink = ((cycleT - 0.7) * 10).floor() % 2 == 0;
+    final isMe = activeCol ? (row >= rows - 2 && blink) : (row >= rows - 2);
+    final v = isMe ? 1.0 : 0.1;
+    return DotState(opacity: v, scale: isMe ? 1.0 : 0.4);
+  }
+}
+
+DotState _laserSweep(int row, int col, int rows, int cols, double t) {
+  final sweepT = (math.sin(t * 2 * math.pi) + 1.0) / 2.0;
+  final targetCol = sweepT * cols;
+  final dist = (col - targetCol).abs();
+  final v = math.max(0.05, 1.0 - dist * 1.5);
+  return DotState(opacity: v, scale: v);
+}
+
+DotState _starfield(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0; final cy = (rows - 1) / 2.0;
+  final dx = col - cx; final dy = row - cy;
+  final angle = math.atan2(dy, dx);
+  final startOffset = (col * 31 + row * 17) % 50 / 50.0;
+  final starT = (t + startOffset) % 1.0;
+  final speed = starT * math.max(cx, cy) * 1.2;
+  final targetX = cx + math.cos(angle) * speed;
+  final targetY = cy + math.sin(angle) * speed;
+  final d = math.sqrt(math.pow(col - targetX, 2) + math.pow(row - targetY, 2));
+  final v = (math.max(0.0, 1.0 - d * 1.5) * starT).clamp(0.0, 1.0);
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _barChart(int row, int col, int rows, int cols, double t) {
+  final phase = col * 0.7;
+  final h = ((math.sin(t * 2 * math.pi + phase) * math.cos(t * 4 * math.pi - phase) + 1.0) / 2.0) * rows;
+  final isMe = (rows - 1 - row) < h;
+  final v = isMe ? 1.0 : 0.1;
+  return DotState(opacity: v, scale: isMe ? 1.0 : 0.4);
+}
+
+DotState _labyrinth(int row, int col, int rows, int cols, double t) {
+  final cycle = (t * 4).floor() % 4;
+  final isCorridor = switch (cycle) {
+    0 => (row % 2 == 0 && col % 3 != 0) || (col % 2 == 0 && row % 3 != 0),
+    1 => (row % 3 == 0) || (col % 2 == 0),
+    2 => (col % 3 == 0) || (row % 2 == 0),
+    _ => (row + col) % 3 == 0 || row % 2 == 0,
+  };
+  final v = isCorridor ? 1.0 : 0.05;
+  return DotState(opacity: v, scale: isCorridor ? 1.0 : 0.3);
+}
+
+DotState _pacmanChase(int row, int col, int rows, int cols, double t) {
+  final perimeter = 2 * (rows + cols - 2);
+  if (perimeter <= 0) return const DotState(opacity: 0, scale: 0);
+  int idx = -1;
+  if (row == 0) {
+    idx = col;
+  } else if (col == cols - 1) {
+    idx = (cols - 1) + row;
+  } else if (row == rows - 1) {
+    idx = (cols - 1) + (rows - 1) + (cols - 1 - col);
+  } else if (col == 0) {
+    idx = 2 * (cols - 1) + (rows - 1) + (rows - 1 - row);
+  }
+  if (idx == -1) return const DotState(opacity: 0.05, scale: 0.3);
+  final pacPos = (t * perimeter).floor() % perimeter;
+  final ghostPos = (pacPos - 3 + perimeter) % perimeter;
+  if (idx == pacPos) {
+    return const DotState(opacity: 1.0, scale: 1.0);
+  } else if (idx == ghostPos) {
+    return const DotState(opacity: 0.8, scale: 0.7);
+  } else if ((idx - pacPos) % 2 == 0) {
+    return const DotState(opacity: 0.5, scale: 0.4);
+  } else {
+    return const DotState(opacity: 0.1, scale: 0.3);
+  }
+}
+
+DotState _sineWaveMultiply(int row, int col, int rows, int cols, double t) {
+  final v1 = math.sin((col / cols) * 2 * math.pi + t * 2 * math.pi);
+  final v2 = math.sin((row / rows) * 2 * math.pi - t * 2 * math.pi);
+  final v = ((v1 * v2) + 1.0) / 2.0;
+  return DotState(opacity: v, scale: 0.35 + 0.65 * v);
+}
+
+DotState _pulseWave(int row, int col, int rows, int cols, double t) {
+  final sweepCol = t * (cols + 4) - 2;
+  final dist = (col - sweepCol).abs();
+  final v = math.exp(-dist * dist * 1.5).clamp(0.0, 1.0);
+  return DotState(opacity: v, scale: 0.3 + 0.7 * v);
+}
+
+DotState _hourglass(int row, int col, int rows, int cols, double t) {
+  final isTop = row < rows / 2;
+  if (t < 0.5) {
+    final stageT = t / 0.5;
+    if (isTop) {
+      final threshold = (stageT * (rows / 2)).floor();
+      final isFilled = row >= threshold;
+      final v = isFilled ? 1.0 : 0.1;
+      return DotState(opacity: v, scale: isFilled ? 1.0 : 0.4);
+    } else {
+      final threshold = (rows - 1) - (stageT * (rows / 2)).floor();
+      final isFilled = row >= threshold;
+      final v = isFilled ? 1.0 : 0.1;
+      return DotState(opacity: v, scale: isFilled ? 1.0 : 0.4);
+    }
+  } else {
+    final stageT = (t - 0.5) / 0.5;
+    if (isTop) {
+      final threshold = (rows / 2) - 1 - (stageT * (rows / 2)).floor();
+      final isFilled = row <= threshold;
+      final v = isFilled ? 1.0 : 0.1;
+      return DotState(opacity: v, scale: isFilled ? 1.0 : 0.4);
+    } else {
+      final threshold = (rows / 2) + (stageT * (rows / 2)).floor();
+      final isFilled = row <= threshold;
+      final v = isFilled ? 1.0 : 0.1;
+      return DotState(opacity: v, scale: isFilled ? 1.0 : 0.4);
+    }
+  }
+}
+
+DotState _loadingArc(int row, int col, int rows, int cols, double t) {
+  final cx = (cols - 1) / 2.0; final cy = (rows - 1) / 2.0;
+  final dx = col - cx; final dy = row - cy;
+  final dist = math.sqrt(dx*dx + dy*dy);
+  final angle = math.atan2(dy, dx);
+  final normalizedAngle = (angle + math.pi) / (2 * math.pi);
+  final sweepAngle = (normalizedAngle - t) % 1.0;
+  final v = sweepAngle < 0.4 ? (1.0 - sweepAngle / 0.4) : 0.05;
+  final maxD = math.sqrt(cx*cx + cy*cy);
+  final onBorder = dist >= maxD * 0.7;
+  final finalV = onBorder ? v : 0.05;
+  return DotState(opacity: finalV, scale: onBorder ? 0.4 + 0.6 * finalV : 0.3);
 }

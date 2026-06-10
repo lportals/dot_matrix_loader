@@ -1,11 +1,13 @@
 # dot_matrix_loader
 
 [![Pub Version](https://img.shields.io/pub/v/dot_matrix_loader?style=flat-square&color=blue)](https://pub.dev/packages/dot_matrix_loader)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-dots.luisportal.com-brightgreen?style=flat-square)](https://dots.luisportal.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Flutter](https://img.shields.io/badge/Flutter-%E2%9C%93-02569B?style=flat-square&logo=flutter)](https://flutter.dev)
 
-A zero-dependency Flutter package for premium dot-matrix loading animations.
-Render animated NxM dot grids with **36 built-in presets**, a custom builder API,
+A zero-dependency Flutter package for premium dot-matrix loading animations. Try the **[Interactive Live Demo](https://dots.luisportal.com/)** in your browser.
+
+Render animated NxM dot grids with **61 built-in presets**, a custom builder API,
 and a frame-by-frame sequence API — all driven by a single `AnimationController`.
 
 ![Dot Matrix Loader Demo](https://raw.githubusercontent.com/lportals/dot_matrix_loader/main/doc/gifs/matrix_loader_animation.gif?v=1)
@@ -14,7 +16,7 @@ and a frame-by-frame sequence API — all driven by a single `AnimationControlle
 
 ## Features
 
-- **36 built-in presets** — Pulse Rings, Spiral, Wave, Heartbeat, Radar, Equalizer, and more
+- **61 built-in presets** — Pulse Rings, Spiral, Wave, Heartbeat, Radar, Equalizer, and more
 - **`CustomDotAnimation`** — define any animation as `f(row, col, t) → DotState`
 - **`SequenceAnimation`** — frame-by-frame pixel art, like a GIF for dot grids
 - **Gallery-friendly** — share one `AnimationController` across N loaders (zero extra tickers)
@@ -28,7 +30,7 @@ and a frame-by-frame sequence API — all driven by a single `AnimationControlle
 
 ```yaml
 dependencies:
-  dot_matrix_loader: ^0.1.5
+  dot_matrix_loader: ^0.2.0
 ```
 
 ---
@@ -188,6 +190,8 @@ class _MyGalleryState extends State<MyGallery>
 | `enableHaptics` | `bool` | `false` | Haptic pulse at the end of each loop |
 | `loop` | `bool` | `true` | Loop the animation |
 | `loopPause` | `Duration` | `Duration.zero` | Pause between loop iterations |
+| `enableGlow` | `bool` | `false` | Renders a soft neon glow/shadow behind active dots |
+| `enableTrail` | `bool` | `false` | Renders a fading motion trail (phosphor decay) behind moving dots |
 
 ## DotMatrixLoader Reference
 

@@ -277,6 +277,181 @@ const _allPresets = [
     category: 'Ambient',
     tag: 'shape-36',
   ),
+  _PresetEntry(
+    preset: MatrixRain(),
+    name: 'Matrix Rain',
+    description: 'Falling digital code streams with fading tails.',
+    category: 'Ambient',
+    tag: 'shape-37',
+  ),
+  _PresetEntry(
+    preset: PingPong(),
+    name: 'Ping Pong',
+    description: 'A bouncing ball-like dot off borders leaving a path.',
+    category: 'Agent',
+    tag: 'shape-38',
+  ),
+  _PresetEntry(
+    preset: FadingGrid(),
+    name: 'Fading Grid',
+    description: 'Alternating grid block positions fade in and out.',
+    category: 'Ambient',
+    tag: 'shape-39',
+  ),
+  _PresetEntry(
+    preset: CrossSlide(),
+    name: 'Cross Slide',
+    description: 'Opposing crossing horizontal and vertical lines.',
+    category: 'Progress',
+    tag: 'shape-40',
+  ),
+  _PresetEntry(
+    preset: ConcentricBoxes(),
+    name: 'Concentric Boxes',
+    description: 'Square concentric shells expanding outward from center.',
+    category: 'Ambient',
+    tag: 'shape-41',
+  ),
+  _PresetEntry(
+    preset: DNAHelix(),
+    name: 'DNA Helix',
+    description: 'Two interlocking vertical sine waves in continuous spin.',
+    category: 'Spinner',
+    tag: 'shape-42',
+  ),
+  _PresetEntry(
+    preset: HeartbeatDouble(),
+    name: 'Heartbeat Double',
+    description: 'Dual ECG-style pulse rhythm with pause periods.',
+    category: 'Progress',
+    tag: 'shape-43',
+  ),
+  _PresetEntry(
+    preset: Fireworks(),
+    name: 'Fireworks',
+    description: 'Rockets shoot from bottom and explode radially.',
+    category: 'Ambient',
+    tag: 'shape-44',
+  ),
+  _PresetEntry(
+    preset: ExpandingPolygons(),
+    name: 'Expanding Polygons',
+    description: 'Expanding geometric diamond-like layouts.',
+    category: 'Ambient',
+    tag: 'shape-45',
+  ),
+  _PresetEntry(
+    preset: SinePlasma(),
+    name: 'Sine Plasma',
+    description: 'Organic superposition of multi-frequency waves.',
+    category: 'Ambient',
+    tag: 'shape-46',
+  ),
+  _PresetEntry(
+    preset: CellularAutomaton(),
+    name: 'Cellular Automaton',
+    description: 'Glider cellular automaton cycling periodically.',
+    category: 'Agent',
+    tag: 'shape-47',
+  ),
+  _PresetEntry(
+    preset: Supernova(),
+    name: 'Supernova',
+    description: 'Energy accumulation in core followed by explosion.',
+    category: 'Spinner',
+    tag: 'shape-48',
+  ),
+  _PresetEntry(
+    preset: Vortex(),
+    name: 'Vortex',
+    description: 'Swirling vortex where inner dots rotate faster.',
+    category: 'Spinner',
+    tag: 'shape-49',
+  ),
+  _PresetEntry(
+    preset: InfinityLoop(),
+    name: 'Infinity Loop',
+    description: 'A single dot tracing a figure-8 infinity loop.',
+    category: 'Agent',
+    tag: 'shape-50',
+  ),
+  _PresetEntry(
+    preset: LiquidFluid(),
+    name: 'Liquid Fluid',
+    description: 'Organic viscous fluid wave simulation.',
+    category: 'Ambient',
+    tag: 'shape-51',
+  ),
+  _PresetEntry(
+    preset: TetrisDrop(),
+    name: 'Tetris Drop',
+    description: 'Falling blocks that fit and clear at the bottom.',
+    category: 'Progress',
+    tag: 'shape-52',
+  ),
+  _PresetEntry(
+    preset: LaserSweep(),
+    name: 'Laser Sweep',
+    description: 'Bouncing laser beam sweeps with long trails.',
+    category: 'Spinner',
+    tag: 'shape-53',
+  ),
+  _PresetEntry(
+    preset: Starfield(),
+    name: 'Starfield',
+    description: 'Outward flying stars originating from center.',
+    category: 'Agent',
+    tag: 'shape-54',
+  ),
+  _PresetEntry(
+    preset: BarChart(),
+    name: 'Bar Chart',
+    description: 'Simulated audio spectrum telemetry bars bouncing.',
+    category: 'Progress',
+    tag: 'shape-55',
+  ),
+  _PresetEntry(
+    preset: Labyrinth(),
+    name: 'Labyrinth',
+    description: 'Shifting grid patterns of walls and corridors.',
+    category: 'Ambient',
+    tag: 'shape-56',
+  ),
+  _PresetEntry(
+    preset: PacmanChase(),
+    name: 'Pacman Chase',
+    description: 'Looped dot chase along the outer border.',
+    category: 'Agent',
+    tag: 'shape-57',
+  ),
+  _PresetEntry(
+    preset: SineWaveMultiply(),
+    name: 'Sine Wave Multiply',
+    description: 'Intersecting horizontal and vertical sine waves.',
+    category: 'Ambient',
+    tag: 'shape-58',
+  ),
+  _PresetEntry(
+    preset: PulseWave(),
+    name: 'Pulse Wave',
+    description: 'Single wave impulse sweeping left to right.',
+    category: 'Spinner',
+    tag: 'shape-59',
+  ),
+  _PresetEntry(
+    preset: Hourglass(),
+    name: 'Hourglass',
+    description: 'Falling sand simulation between top and bottom halves.',
+    category: 'Progress',
+    tag: 'shape-60',
+  ),
+  _PresetEntry(
+    preset: LoadingArc(),
+    name: 'Loading Arc',
+    description: 'Concentric circular load sweep along border.',
+    category: 'Spinner',
+    tag: 'shape-61',
+  ),
 ];
 
 const _categories = ['All', 'Spinner', 'Progress', 'Ambient', 'Agent'];
@@ -476,33 +651,38 @@ class _ShowcasePageState extends State<ShowcasePage>
                   letterSpacing: -1.0,
                 ),
               ),
-              GestureDetector(
-                onTap: widget.onToggleTheme,
-                behavior: HitTestBehavior.opaque,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: onSurface.withValues(alpha: 0.07),
-                    borderRadius: StudioProvider.of(context).shape == DotShape.circle
-                        ? BorderRadius.circular(18)
-                        : BorderRadius.circular(4),
-                  ),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (child, anim) =>
-                        ScaleTransition(scale: anim, child: child),
-                    child: Icon(
-                      widget.isDark
-                          ? Icons.light_mode_rounded
-                          : Icons.dark_mode_rounded,
-                      key: ValueKey(widget.isDark),
-                      size: 18,
-                      color: onSurface.withValues(alpha: 0.55),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: widget.onToggleTheme,
+                    behavior: HitTestBehavior.opaque,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: onSurface.withValues(alpha: 0.07),
+                        borderRadius: StudioProvider.of(context).shape == DotShape.circle
+                            ? BorderRadius.circular(18)
+                            : BorderRadius.circular(4),
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (child, anim) =>
+                            ScaleTransition(scale: anim, child: child),
+                        child: Icon(
+                          widget.isDark
+                              ? Icons.light_mode_rounded
+                              : Icons.dark_mode_rounded,
+                          key: ValueKey(widget.isDark),
+                          size: 18,
+                          color: onSurface.withValues(alpha: 0.55),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
@@ -512,7 +692,7 @@ class _ShowcasePageState extends State<ShowcasePage>
             runSpacing: 4,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              _buildSpecLabel('36 PRESETS', onSurface),
+              _buildSpecLabel('61 PRESETS', onSurface),
               _buildSpecDivider(onSurface),
               _buildSpecLabel('1 CONTROLLER', onSurface),
               _buildSpecDivider(onSurface),
@@ -547,56 +727,72 @@ class _ShowcasePageState extends State<ShowcasePage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Row 1: Colors (left) + Shape Toggle (right)
-            Row(
-              children: [
-                _ColorDot(
-                  color: Theme.of(context).colorScheme.primary,
-                  selected: _activeColor == Theme.of(context).colorScheme.primary,
-                  onTap: () => setState(() => _activeColor = Theme.of(context).colorScheme.primary),
-                  isDark: isDark,
-                ),
-                const SizedBox(width: 8),
-                _ColorDot(
-                  color: const Color(0xFF42A5F5),
-                  selected: _activeColor == const Color(0xFF42A5F5),
-                  onTap: () => setState(() => _activeColor = const Color(0xFF42A5F5)),
-                  isDark: isDark,
-                ),
-                const SizedBox(width: 8),
-                _ColorDot(
-                  color: const Color(0xFF66BB6A),
-                  selected: _activeColor == const Color(0xFF66BB6A),
-                  onTap: () => setState(() => _activeColor = const Color(0xFF66BB6A)),
-                  isDark: isDark,
-                ),
-                const SizedBox(width: 8),
-                _ColorDot(
-                  color: const Color(0xFFAB47BC),
-                  selected: _activeColor == const Color(0xFFAB47BC),
-                  onTap: () => setState(() => _activeColor = const Color(0xFFAB47BC)),
-                  isDark: isDark,
-                ),
-                const Spacer(),
-                _GlowToggle(
-                  enabled: _enableGlow,
-                  activeColor: _activeColor,
-                  onSurface: onSurface,
-                  onTap: () => setState(() => _enableGlow = !_enableGlow),
-                ),
-                const SizedBox(width: 8),
-                _TrailToggle(
-                  enabled: _enableTrail,
-                  activeColor: _activeColor,
-                  onSurface: onSurface,
-                  onTap: () => setState(() => _enableTrail = !_enableTrail),
-                ),
-                const SizedBox(width: 8),
-                ShapeToggle(
-                  activeColor: _activeColor,
-                  onSurface: onSurface,
-                ),
-              ],
+            // Row 1: Colors (left) + Toggles (right) - Wrap layout prevents collision on narrow screens
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _ColorDot(
+                        color: Theme.of(context).colorScheme.primary,
+                        selected: _activeColor == Theme.of(context).colorScheme.primary,
+                        onTap: () => setState(() => _activeColor = Theme.of(context).colorScheme.primary),
+                        isDark: isDark,
+                      ),
+                      const SizedBox(width: 8),
+                      _ColorDot(
+                        color: const Color(0xFF42A5F5),
+                        selected: _activeColor == const Color(0xFF42A5F5),
+                        onTap: () => setState(() => _activeColor = const Color(0xFF42A5F5)),
+                        isDark: isDark,
+                      ),
+                      const SizedBox(width: 8),
+                      _ColorDot(
+                        color: const Color(0xFF66BB6A),
+                        selected: _activeColor == const Color(0xFF66BB6A),
+                        onTap: () => setState(() => _activeColor = const Color(0xFF66BB6A)),
+                        isDark: isDark,
+                      ),
+                      const SizedBox(width: 8),
+                      _ColorDot(
+                        color: const Color(0xFFAB47BC),
+                        selected: _activeColor == const Color(0xFFAB47BC),
+                        onTap: () => setState(() => _activeColor = const Color(0xFFAB47BC)),
+                        isDark: isDark,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _GlowToggle(
+                        enabled: _enableGlow,
+                        activeColor: _activeColor,
+                        onSurface: onSurface,
+                        onTap: () => setState(() => _enableGlow = !_enableGlow),
+                      ),
+                      const SizedBox(width: 8),
+                      _TrailToggle(
+                        enabled: _enableTrail,
+                        activeColor: _activeColor,
+                        onSurface: onSurface,
+                        onTap: () => setState(() => _enableTrail = !_enableTrail),
+                      ),
+                      const SizedBox(width: 8),
+                      ShapeToggle(
+                        activeColor: _activeColor,
+                        onSurface: onSurface,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
             // Row 2: Speed slider
@@ -1083,29 +1279,32 @@ class _GlowToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final studio = StudioProvider.of(context);
-    return StudioInteractiveWrapper(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: enabled
-              ? activeColor.withValues(alpha: 0.15)
-              : onSurface.withValues(alpha: 0.07),
-          borderRadius: studio.borderRadius,
-          border: Border.all(
-            color: enabled ? activeColor.withValues(alpha: 0.3) : Colors.transparent,
-            width: 1.0,
+    return Tooltip(
+      message: 'Toggle Glow shadow',
+      child: StudioInteractiveWrapper(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: enabled
+                ? activeColor.withValues(alpha: 0.15)
+                : onSurface.withValues(alpha: 0.07),
+            borderRadius: studio.borderRadius,
+            border: Border.all(
+              color: enabled ? activeColor.withValues(alpha: 0.3) : Colors.transparent,
+              width: 1.0,
+            ),
           ),
-        ),
-        child: Icon(
-          Icons.flare_rounded,
-          size: 18,
-          color: enabled ? activeColor : onSurface.withValues(alpha: 0.55),
+          child: Icon(
+            Icons.flare_rounded,
+            size: 18,
+            color: enabled ? activeColor : onSurface.withValues(alpha: 0.55),
+          ),
         ),
       ),
     );
@@ -1128,29 +1327,32 @@ class _TrailToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final studio = StudioProvider.of(context);
-    return StudioInteractiveWrapper(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: enabled
-              ? activeColor.withValues(alpha: 0.15)
-              : onSurface.withValues(alpha: 0.07),
-          borderRadius: studio.borderRadius,
-          border: Border.all(
-            color: enabled ? activeColor.withValues(alpha: 0.3) : Colors.transparent,
-            width: 1.0,
+    return Tooltip(
+      message: 'Toggle Motion trail',
+      child: StudioInteractiveWrapper(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: enabled
+                ? activeColor.withValues(alpha: 0.15)
+                : onSurface.withValues(alpha: 0.07),
+            borderRadius: studio.borderRadius,
+            border: Border.all(
+              color: enabled ? activeColor.withValues(alpha: 0.3) : Colors.transparent,
+              width: 1.0,
+            ),
           ),
-        ),
-        child: Icon(
-          Icons.auto_awesome_motion_rounded,
-          size: 18,
-          color: enabled ? activeColor : onSurface.withValues(alpha: 0.55),
+          child: Icon(
+            Icons.auto_awesome_motion_rounded,
+            size: 18,
+            color: enabled ? activeColor : onSurface.withValues(alpha: 0.55),
+          ),
         ),
       ),
     );

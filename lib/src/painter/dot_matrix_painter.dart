@@ -60,8 +60,8 @@ class DotMatrixPainter extends CustomPainter {
         double scale = dotState.scale.clamp(0.0, 1.0);
 
         if (style.enableTrail) {
-          const trailSteps = 4;
-          const decayFactor = 0.5;
+          const trailSteps = 5;
+          const decayFactor = 0.65;
           const timeStep = 0.05;
           for (int i = 1; i <= trailSteps; i++) {
             final rawTPrev = t - i * timeStep;
@@ -82,6 +82,27 @@ class DotMatrixPainter extends CustomPainter {
         // Calculate absolute center position
         final cx = dotRadius + col * (dotDiameter + dotGap);
         final cy = dotRadius + row * (dotDiameter + dotGap);
+
+        // Draw background inactive dot first (representing physical off-state)
+        // so the panel grid structure remains visible.
+        if (style.inactiveColor.a > 0.0) {
+          final bgPaint = Paint()
+            ..style = PaintingStyle.fill
+            ..color = style.inactiveColor;
+          if (style.dotShape == DotShape.circle) {
+            canvas.drawCircle(Offset(cx, cy), dotRadius, bgPaint);
+          } else {
+            final rect = Rect.fromCenter(
+              center: Offset(cx, cy),
+              width: dotRadius * 2,
+              height: dotRadius * 2,
+            );
+            canvas.drawRRect(
+              RRect.fromRectAndRadius(rect, Radius.circular(dotRadius * 0.18)),
+              bgPaint,
+            );
+          }
+        }
 
         final currentRadius = dotRadius * scale;
 

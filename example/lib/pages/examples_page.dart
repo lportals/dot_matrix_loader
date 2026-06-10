@@ -284,7 +284,7 @@ class _ExamplesPageState extends State<ExamplesPage>
               Divider(color: borderColor, height: 1),
               const SizedBox(height: 32),
 
-              // ── Simulated System Cases (Grid of 36 Presets) ──
+              // ── Simulated System Cases (Grid of 61 Presets) ──
               _buildSimulatedCasesSection(surfaceColor, borderColor, textColor, activeColor),
             ],
           ),
@@ -395,7 +395,7 @@ class _ExamplesPageState extends State<ExamplesPage>
     );
   }
 
-  /// System Active processes grid simulating real-world workloads using all 36 presets.
+  /// System Active processes grid simulating real-world workloads using all 61 presets.
   Widget _buildSimulatedCasesSection(Color surfaceColor, Color borderColor, Color textColor, Color activeColor) {
     final filtered = _viewModel.filteredExamples;
 
